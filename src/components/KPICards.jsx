@@ -3,6 +3,7 @@ import { TrendingUp, FolderKanban, BarChart3 } from 'lucide-react';
 import { formatCurrencyFull, formatPercentage } from '../utils/formatters';
 
 const AnimatedNumber = ({ value, formatter, duration = 1200 }) => {
+  const safeValue = typeof value === 'number' && isFinite(value) ? value : 0;
   const [displayed, setDisplayed] = useState(0);
   const startTime = useRef(null);
   const rafId = useRef(null);
@@ -13,27 +14,33 @@ const AnimatedNumber = ({ value, formatter, duration = 1200 }) => {
       if (!startTime.current) startTime.current = timestamp;
       const progress = Math.min((timestamp - startTime.current) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayed(value * eased);
+      setDisplayed(safeValue * eased);
       if (progress < 1) {
         rafId.current = requestAnimationFrame(animate);
       } else {
-        setDisplayed(value);
+        setDisplayed(safeValue);
       }
     };
     rafId.current = requestAnimationFrame(animate);
     return () => {
       if (rafId.current) cancelAnimationFrame(rafId.current);
     };
-  }, [value, duration]);
+  }, [safeValue, duration]);
 
   return <>{formatter(displayed)}</>;
 };
 
 const KPICards = ({ kpis, isNational }) => {
+  const safeKpis = {
+    totalContratado: typeof kpis.totalContratado === 'number' && isFinite(kpis.totalContratado) ? kpis.totalContratado : 0,
+    cantidadProyectos: typeof kpis.cantidadProyectos === 'number' && isFinite(kpis.cantidadProyectos) ? kpis.cantidadProyectos : 0,
+    avgDesembolso: typeof kpis.avgDesembolso === 'number' && isFinite(kpis.avgDesembolso) ? kpis.avgDesembolso : 0,
+  };
+
   const cards = [
     {
       title: 'Inversión Total Contratada',
-      value: kpis.totalContratado,
+      value: safeKpis.totalContratado,
       formatter: (v) => formatCurrencyFull(v),
       icon: TrendingUp,
       accent: 'var(--gold)',
@@ -41,7 +48,7 @@ const KPICards = ({ kpis, isNational }) => {
     },
     {
       title: 'Cantidad de Contratos',
-      value: kpis.cantidadProyectos,
+      value: safeKpis.cantidadProyectos,
       formatter: (v) => Math.round(v).toLocaleString('es-BO'),
       icon: FolderKanban,
       accent: '#2563eb',
@@ -49,8 +56,8 @@ const KPICards = ({ kpis, isNational }) => {
     },
     {
       title: isNational ? 'Desembolso Promedio' : 'Avance Promedio',
-      value: kpis.avgDesembolso,
-      formatter: (v) => `${v.toFixed(1)}%`,
+      value: safeKpis.avgDesembolso,
+      formatter: (v) => `${isFinite(v) ? v.toFixed(1) : '0.0'}%`,
       icon: BarChart3,
       accent: '#16a34a',
       bgAccent: 'rgba(22, 163, 74, 0.1)',

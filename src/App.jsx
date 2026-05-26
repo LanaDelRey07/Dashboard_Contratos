@@ -29,7 +29,7 @@ function App() {
   }, []);
 
   const filteredProjects = useMemo(() =>
-    filterProjects({ searchTerm, selectedDepto, selectedSector, selectedEstados }),
+    filterProjects({ searchTerm: searchTerm.slice(0, 100), selectedDepto, selectedSector, selectedEstados }),
     [searchTerm, selectedDepto, selectedSector, selectedEstados]
   );
 

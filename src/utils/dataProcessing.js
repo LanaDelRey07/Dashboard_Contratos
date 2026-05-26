@@ -69,20 +69,28 @@ export const filterProjects = ({ searchTerm = '', selectedDepto = null, selected
 };
 
 export const calculateKPIs = (projects) => {
+  if (!projects || projects.length === 0) {
+    return { totalContratado: 0, cantidadProyectos: 0, avgDesembolso: 0, avgAvanceFisico: null };
+  }
+
   const totalContratado = projects.reduce((acc, p) => {
-    const val = parseFloat(String(p['Monto Contratado (USD)']).replace(',', '.') || '0');
+    const val = parseFloat(String(p['Monto Contratado (USD)'] || '0').replace(',', '.'));
     return acc + (isNaN(val) ? 0 : val);
   }, 0);
 
   const avgDesembolso = projects.length > 0
     ? projects.reduce((acc, p) => {
-        const pct = parseFloat(String(p['Porcentaje de Desembolso']).replace(',', '.') || '0');
+        const raw = p['Porcentaje de Desembolso'];
+        const pct = parseFloat(String(raw == null ? '0' : raw).replace(',', '.') || '0');
         return acc + (isNaN(pct) ? 0 : pct > 1 ? pct / 100 : pct);
       }, 0) / projects.length * 100
     : 0;
 
   const avgAvanceFisico = (() => {
-    const withAvance = projects.filter(p => p['Porcentaje (%) de Avance Físico'] && p['Porcentaje (%) de Avance Físico'] !== '');
+    const withAvance = projects.filter(p => {
+      const v = p['Porcentaje (%) de Avance Físico'];
+      return v !== null && v !== undefined && v !== '' && v !== 'n.a.';
+    });
     if (withAvance.length === 0) return null;
     return withAvance.reduce((acc, p) => {
       const pct = parseFloat(String(p['Porcentaje (%) de Avance Físico']).replace(',', '.') || '0');
@@ -91,10 +99,10 @@ export const calculateKPIs = (projects) => {
   })();
 
   return {
-    totalContratado,
+    totalContratado: isNaN(totalContratado) ? 0 : totalContratado,
     cantidadProyectos: projects.length,
-    avgDesembolso,
-    avgAvanceFisico,
+    avgDesembolso: isNaN(avgDesembolso) ? 0 : avgDesembolso,
+    avgAvanceFisico: avgAvanceFisico !== null && isNaN(avgAvanceFisico) ? null : avgAvanceFisico,
   };
 };
 

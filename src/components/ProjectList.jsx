@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ArrowUpDown, AlertTriangle } from 'lucide-react';
 import { formatCurrencyTable, getEstadoColor, DPTO_DISPLAY_NAMES } from '../utils/formatters';
 import { getProjectsWithAlerts } from '../utils/dataProcessing';
@@ -9,6 +9,14 @@ const ProjectList = ({ projects, onSelectProject }) => {
   const [page, setPage] = useState(0);
   const [sortField, setSortField] = useState('Monto Contratado (USD)');
   const [sortDir, setSortDir] = useState('desc');
+
+  const prevLength = useRef(projects.length);
+  useEffect(() => {
+    if (projects.length !== prevLength.current) {
+      setPage(0);
+      prevLength.current = projects.length;
+    }
+  }, [projects.length]);
 
   const alerts = useMemo(() => {
     const set = new Set(getProjectsWithAlerts(projects).map(p => p._id));
