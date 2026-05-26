@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #ffffff;
+  --text: #000000;
+  --gold: #b8952c;
+  --gray: #f2f2f2;
+  --nav-border: #eeeeee;
+  --gold-light: #d4b94e;
+  --gold-dark: #8a6f1e;
+}
+
+[data-theme="dark"] {
+  --bg: #121212;
+  --text: #ffffff;
+  --gray: #1e1e1e;
+  --nav-border: #333333;
+}
+
+* {
+  /* margin: 0;
+  padding: 0; */
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+input, select, textarea, option {
+  color: inherit;
+}
+
+input::placeholder, select:invalid {
+  color: rgba(128, 128, 128, 0.7);
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184, 149, 44, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(184, 149, 44, 0); }
+}
+
+.animate-count-up {
+  animation: countUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideInUp 0.4s ease-out forwards;
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 2s infinite;
+}
+
+.depto-path {
+  transition: fill 0.2s, stroke 0.2s, filter 0.2s;
+  cursor: pointer;
+}
+
+.depto-path:hover {
+  filter: brightness(1.15);
+  stroke-width: 2.5;
+}
+
+.depto-path.active {
+  stroke-width: 3;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: var(--gray);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 3px;
+}
+
+.kpi-card {
+  animation: countUp 0.5s ease-out forwards;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s;
+}
+
+@media print {
+  .no-print { display: none !important; }
+}
