@@ -34,16 +34,26 @@ export const getUniqueEstados = () => {
 export const filterProjects = ({ searchTerm = '', selectedDepto = null, selectedSector = '', selectedEstados = [] }) => {
   let filtered = allProjects;
 
-  if (searchTerm) {
-    const term = searchTerm.toLowerCase();
-    filtered = filtered.filter(p => {
-      const nombre = String(p['Nombre del Proyecto'] || '').toLowerCase();
-      const sisfin = String(p['SISFIN'] || '').toLowerCase();
-      const sisin = String(p['Código SISIN'] || '').toLowerCase();
-      const org = String(p['Organismo Financiador'] || '').toLowerCase();
-      const ent = String(p['Entidad Ejecutora'] || '').toLowerCase();
-      return nombre.includes(term) || sisfin.includes(term) || sisin.includes(term) || org.includes(term) || ent.includes(term);
-    });
+  if (searchTerm && searchTerm.trim().length > 0) {
+    const raw = searchTerm.trim().slice(0, 100);
+    const terms = raw.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+
+    if (terms.length > 0) {
+      filtered = filtered.filter(p => {
+        const fields = [
+          String(p['Nombre del Proyecto'] || ''),
+          String(p['SISFIN'] || ''),
+          String(p['Código SISIN'] || ''),
+          String(p['Organismo Financiador'] || ''),
+          String(p['Entidad Ejecutora'] || ''),
+          String(p['Departamento'] || ''),
+          String(p['Estado del Crédito'] || ''),
+          String(p._sector || ''),
+          String(p['Nacional'] || ''),
+        ].join(' ').toLowerCase();
+        return terms.every(t => fields.includes(t));
+      });
+    }
   }
 
   if (selectedDepto) {

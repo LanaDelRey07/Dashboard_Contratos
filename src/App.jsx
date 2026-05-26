@@ -28,22 +28,37 @@ function App() {
     });
   }, []);
 
-  const filteredProjects = useMemo(() =>
-    filterProjects({ searchTerm: searchTerm.slice(0, 100), selectedDepto, selectedSector, selectedEstados }),
-    [searchTerm, selectedDepto, selectedSector, selectedEstados]
-  );
+  const filteredProjects = useMemo(() => {
+    try {
+      return filterProjects({ searchTerm: searchTerm.slice(0, 100), selectedDepto, selectedSector, selectedEstados });
+    } catch (e) {
+      console.error('Error filtering projects:', e);
+      return [];
+    }
+  }, [searchTerm, selectedDepto, selectedSector, selectedEstados]);
 
   const kpisForTotals = useMemo(() => {
-    if (!selectedDepto || selectedDepto === 'NACIONAL') {
-      return calculateKPIs(filteredProjects);
+    try {
+      if (!selectedDepto || selectedDepto === 'NACIONAL') {
+        return calculateKPIs(filteredProjects);
+      }
+      const deptOnlyProjects = filteredProjects.filter(p => p['Departamento'] === selectedDepto);
+      return calculateKPIs(deptOnlyProjects);
+    } catch (e) {
+      console.error('Error calculating KPIs:', e);
+      return { totalContratado: 0, cantidadProyectos: 0, avgDesembolso: 0, avgAvanceFisico: null };
     }
-    const deptOnlyProjects = filteredProjects.filter(p => p['Departamento'] === selectedDepto);
-    return calculateKPIs(deptOnlyProjects);
   }, [filteredProjects, selectedDepto]);
 
-  const sectorDist = useMemo(() => getSectorDistribution(filteredProjects), [filteredProjects]);
-  const estadoDist = useMemo(() => getEstadoDistribution(filteredProjects), [filteredProjects]);
-  const alertProjects = useMemo(() => getProjectsWithAlerts(filteredProjects), [filteredProjects]);
+  const sectorDist = useMemo(() => {
+    try { return getSectorDistribution(filteredProjects); } catch { return []; }
+  }, [filteredProjects]);
+  const estadoDist = useMemo(() => {
+    try { return getEstadoDistribution(filteredProjects); } catch { return []; }
+  }, [filteredProjects]);
+  const alertProjects = useMemo(() => {
+    try { return getProjectsWithAlerts(filteredProjects); } catch { return []; }
+  }, [filteredProjects]);
 
   const handleExportResumen = () => {
     const deptoName = selectedDepto ? DPTO_DISPLAY_NAMES[selectedDepto] || selectedDepto : 'Nacional';
@@ -62,7 +77,7 @@ function App() {
     crumbs.push({ label: DPTO_DISPLAY_NAMES[selectedDepto] || selectedDepto, onClick: () => setSelectedProject(null) });
   }
   if (selectedProject) {
-    crumbs.push({ label: selectedProject['Nombre del Proyecto'].substring(0, 40) + '...' });
+    crumbs.push({ label: (selectedProject['Nombre del Proyecto'] || 'Sin nombre').substring(0, 40) + '...' });
   }
 
   return (
