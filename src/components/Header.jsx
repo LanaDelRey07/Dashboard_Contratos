@@ -20,7 +20,7 @@ const Header = ({ searchTerm, onSearchChange, darkMode, onToggleDark }) => {
             />
             <div className="min-w-0">
               <h1 className="text-base font-bold leading-tight truncate" style={{ color: 'var(--text)' }}>
-                Tablero Gerencial - Financiamiento Externo en Ejecución de Contratos
+                Tablero Gerencial - Financiamiento Externo en Ejecución
               </h1>
               <p className="text-xs leading-tight truncate" style={{ color: 'var(--gold)' }}>
                 Ministerio de Planificación del Desarrollo y Medio Ambiente
