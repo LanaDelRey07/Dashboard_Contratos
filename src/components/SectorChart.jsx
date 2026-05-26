@@ -4,24 +4,14 @@ import { getSectorColor } from '../utils/formatters';
 const SectorChart = ({ data }) => {
   const total = useMemo(() => data.reduce((acc, d) => acc + d.total, 0), [data]);
 
-  if (data.length === 0 || total === 0) {
-    return (
-      <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
-        <h3 className="text-sm font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--gold)' }}>
-          Distribución por Sector
-        </h3>
-        <p className="text-sm opacity-50 text-center py-8">Sin datos para mostrar</p>
-      </div>
-    );
-  }
-
   const radius = 80;
   const innerRadius = 50;
 
   const slices = useMemo(() => {
+    if (data.length === 0 || total === 0) return [];
     let angle = -90;
     return data.map((d) => {
-      const sweep = (d.total / total) * 360;
+      const sweep = Math.max((d.total / total) * 360, 0.1);
       const startRad = (angle * Math.PI) / 180;
       const endRad = ((angle + sweep) * Math.PI) / 180;
       angle += sweep;
@@ -45,7 +35,18 @@ const SectorChart = ({ data }) => {
 
       return { sector: d.sector, pathData, color: getSectorColor(d.sector) };
     });
-  }, [data, total, radius, innerRadius]);
+  }, [data, total]);
+
+  if (data.length === 0 || total === 0) {
+    return (
+      <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
+        <h3 className="text-sm font-semibold uppercase tracking-wider mb-3" style={{ color: 'var(--gold)' }}>
+          Distribución por Sector
+        </h3>
+        <p className="text-sm opacity-50 text-center py-8">Sin datos para mostrar</p>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>

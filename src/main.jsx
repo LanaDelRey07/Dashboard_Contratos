@@ -4,10 +4,11 @@ import './index.css'
 import App from './App.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 
-createRoot(document.getElementById('root')).render(
+const root = createRoot(document.getElementById('root'));
+root.render(
   <StrictMode>
-    <ErrorBoundary>
+    <ErrorBoundary onReset={() => { window.location.href = window.location.pathname; }}>
       <App />
     </ErrorBoundary>
   </StrictMode>,
-)
+);

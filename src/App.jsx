@@ -7,7 +7,7 @@ import SectorChart from './components/SectorChart';
 import StateChart from './components/StateChart';
 import ProjectList from './components/ProjectList';
 import ProjectDetail from './components/ProjectDetail';
-import { filterProjects, calculateKPIs, getSectorDistribution, getEstadoDistribution, getProjectsWithAlerts } from './utils/dataProcessing';
+import { filterProjects, calculateKPIs, getSectorDistribution, getEstadoDistribution, getProjectsWithAlerts, allProjects } from './utils/dataProcessing';
 import { exportResumenPDF } from './utils/pdfExport';
 import { DPTO_DISPLAY_NAMES } from './utils/formatters';
 
@@ -30,10 +30,10 @@ function App() {
 
   const filteredProjects = useMemo(() => {
     try {
-      return filterProjects({ searchTerm: searchTerm.slice(0, 100), selectedDepto, selectedSector, selectedEstados });
-    } catch (e) {
-      console.error('Error filtering projects:', e);
-      return [];
+      const term = (searchTerm || '').trim().slice(0, 100);
+      return filterProjects({ searchTerm: term, selectedDepto, selectedSector, selectedEstados });
+    } catch {
+      return allProjects;
     }
   }, [searchTerm, selectedDepto, selectedSector, selectedEstados]);
 

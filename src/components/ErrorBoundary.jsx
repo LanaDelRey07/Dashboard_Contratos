@@ -3,7 +3,7 @@ import { Component } from 'react';
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorCount: 0 };
   }
 
   static getDerivedStateFromError(error) {
@@ -12,6 +12,7 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('ErrorBoundary caught:', error, errorInfo);
+    this.setState(prev => ({ errorCount: prev.errorCount + 1 }));
   }
 
   render() {
@@ -22,28 +23,29 @@ class ErrorBoundary extends Component {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '100vh',
+          minHeight: '60vh',
           padding: '2rem',
           textAlign: 'center',
           fontFamily: 'Inter, system-ui, sans-serif',
         }}>
           <div style={{
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
+            backgroundColor: '#fffbeb',
+            border: '1px solid #fde68a',
             borderRadius: '12px',
             padding: '2rem',
-            maxWidth: '500px',
+            maxWidth: '420px',
           }}>
-            <h2 style={{ color: '#991b1b', marginBottom: '0.5rem', fontSize: '1.25rem', fontWeight: 700 }}>
-              Ocurrió un error inesperado
+            <h2 style={{ color: '#92400e', marginBottom: '0.5rem', fontSize: '1.125rem', fontWeight: 600 }}>
+              No se encontraron resultados
             </h2>
-            <p style={{ color: '#7f1d1d', marginBottom: '1rem', fontSize: '0.875rem' }}>
-              Se produjo un error al renderizar el tablero. Por favor, intente recargar la página.
+            <p style={{ color: '#78350f', marginBottom: '1rem', fontSize: '0.875rem' }}>
+              La búsqueda no arrojó resultados o produjo un error. Intente con otros términos o reinicie los filtros.
             </p>
             <button
               onClick={() => {
                 this.setState({ hasError: false, error: null });
-                window.location.reload();
+                if (this.props.onReset) this.props.onReset();
+                else window.location.reload();
               }}
               style={{
                 backgroundColor: '#b8952c',
@@ -56,7 +58,7 @@ class ErrorBoundary extends Component {
                 cursor: 'pointer',
               }}
             >
-              Recargar página
+              Reiniciar búsqueda
             </button>
           </div>
         </div>
