@@ -8,6 +8,15 @@
   --nav-border: #eeeeee;
   --gold-light: #d4b94e;
   --gold-dark: #8a6f1e;
+  
+  /* Map custom properties - Light Mode (Soft Grays) */
+  --map-fill-empty: #f9fafb;
+  --map-fill-1: #e5e7eb;
+  --map-fill-2: #d1d5db;
+  --map-fill-3: #9ca3af;
+  --map-fill-4: #6b7280;
+  --map-fill-5: #4b5563;
+  --map-stroke: #e5e7eb;
 }
 
 [data-theme="dark"] {
@@ -15,6 +24,15 @@
   --text: #ffffff;
   --gray: #1e1e1e;
   --nav-border: #333333;
+
+  /* Map custom properties - Dark Mode (Soft Grays) */
+  --map-fill-empty: #18181b;
+  --map-fill-1: #27272a;
+  --map-fill-2: #3f3f46;
+  --map-fill-3: #52525b;
+  --map-fill-4: #71717a;
+  --map-fill-5: #a1a1aa;
+  --map-stroke: #3f3f46;
 }
 
 * {

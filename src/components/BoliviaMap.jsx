@@ -13,16 +13,16 @@ const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
   const getDeptoColor = useCallback((deptoName) => {
     if (!distribution[deptoName]) return null;
     const total = distribution[deptoName].total;
-    if (total >= 500_000_000) return '#991b1b'; // Strong red-800
-    if (total >= 200_000_000) return '#dc2626'; // Vibrant red-600
-    if (total >= 100_000_000) return '#f87171'; // Light red-400
-    if (total >= 50_000_000) return '#fca5a5';  // Soft red-300
-    return '#ffe4e6';                           // Very soft rose-red-100
+    if (total >= 500_000_000) return 'var(--map-fill-5)';
+    if (total >= 200_000_000) return 'var(--map-fill-4)';
+    if (total >= 100_000_000) return 'var(--map-fill-3)';
+    if (total >= 50_000_000) return 'var(--map-fill-2)';
+    return 'var(--map-fill-1)';
   }, [distribution]);
 
   const isDark = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark';
-  const defaultFill = isDark ? '#262626' : '#f5f5f7';
-  const strokeColor = isDark ? '#404040' : '#e5e7eb';
+  const defaultFill = 'var(--map-fill-empty)';
+  const strokeColor = 'var(--map-stroke)';
   const contrastColor = '#d4af37'; // Gold contrast color
 
   const labelPositionsScaled = useMemo(() => {
@@ -147,16 +147,16 @@ const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
 
       <div className="flex items-center justify-center gap-3 mt-2 text-xs" style={{ color: 'var(--text)', opacity: 0.7 }}>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#ffe4e6' }}></span> &lt;$50M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-1)' }}></span> &lt;$50M
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#fca5a5' }}></span> $50-100M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-2)' }}></span> $50-100M
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#f87171' }}></span> $100-500M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-3)' }}></span> $100-500M
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#991b1b' }}></span> &gt;$500M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-5)' }}></span> &gt;$500M
         </span>
         <span className="flex items-center gap-1">
           <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: contrastColor }}></span> Selección
