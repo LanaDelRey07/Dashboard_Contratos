@@ -41,6 +41,7 @@ const KPICards = ({ kpis }) => {
     vigentesCount: typeof kpis.vigentesCount === 'number' && isFinite(kpis.vigentesCount) ? kpis.vigentesCount : 0,
     enAlpCount: typeof kpis.enAlpCount === 'number' && isFinite(kpis.enAlpCount) ? kpis.enAlpCount : 0,
     enGestionCount: typeof kpis.enGestionCount === 'number' && isFinite(kpis.enGestionCount) ? kpis.enGestionCount : 0,
+    totalSubproyectos: typeof kpis.totalSubproyectos === 'number' && isFinite(kpis.totalSubproyectos) ? kpis.totalSubproyectos : 0,
   };
 
   const cards = [
@@ -93,23 +94,23 @@ const KPICards = ({ kpis }) => {
       ),
     },
     {
-      title: 'Avance Físico Promedio',
-      value: safeKpis.avgAvanceFisico !== null ? safeKpis.avgAvanceFisico : 0,
-      formatter: (v) => safeKpis.avgAvanceFisico !== null ? `${v.toFixed(1)}%` : '0.0%',
+      title: 'Cantidad de Subproyectos (Obras)',
+      value: safeKpis.totalSubproyectos,
+      formatter: (v) => Math.round(v).toLocaleString('es-BO'),
       icon: BarChart3,
       accent: '#8b5cf6',
       bgAccent: 'rgba(139, 92, 246, 0.1)',
       breakdown: (
         <div className="mt-3 pt-3 border-t border-[var(--nav-border)] grid grid-cols-2 gap-2 text-xs text-center">
           <div>
-            <span className="opacity-60 block text-[10px] uppercase font-medium">Av. Financiero</span>
-            <span className="font-semibold text-green-600 dark:text-green-400">
-              {safeKpis.avgDesembolso.toFixed(1)}%
+            <span className="opacity-60 block text-[10px] uppercase font-medium">Obras por Contrato</span>
+            <span className="font-semibold text-blue-600 dark:text-blue-400">
+              {safeKpis.cantidadProyectos > 0 ? (safeKpis.totalSubproyectos / safeKpis.cantidadProyectos).toFixed(1) : '0.0'}
             </span>
           </div>
           <div>
-            <span className="opacity-60 block text-[10px] uppercase font-medium">Físico Registrado</span>
-            <span className="font-semibold text-blue-600 dark:text-blue-400">
+            <span className="opacity-60 block text-[10px] uppercase font-medium">Av. Físico Promedio</span>
+            <span className="font-semibold text-green-600 dark:text-green-400">
               {safeKpis.avgAvanceFisico !== null ? `${safeKpis.avgAvanceFisico.toFixed(1)}%` : '0.0%'}
             </span>
           </div>

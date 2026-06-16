@@ -1,4 +1,5 @@
 import rawData from '../data/PROYECTOS_SECTOR.json';
+import subproyectosData from '../data/subproyectos_estructurados.json';
 
 const flattenProjects = () => {
   const projects = [];
@@ -104,6 +105,7 @@ export const calculateKPIs = (projects) => {
       vigentesCount: 0,
       enAlpCount: 0,
       enGestionCount: 0,
+      totalSubproyectos: 0,
       orgsDistribution: [],
     };
   }
@@ -144,6 +146,14 @@ export const calculateKPIs = (projects) => {
   const enAlpCount = projects.filter(p => p['Estado del Crédito'] === 'EN ALP').length;
   const enGestionCount = projects.filter(p => p['Estado del Crédito'] === 'EN GESTIÓN').length;
 
+  const totalSubproyectos = projects.reduce((acc, p) => {
+    if (p.SISFIN) {
+      const list = subproyectosData[p.SISFIN] || [];
+      return acc + list.length;
+    }
+    return acc;
+  }, 0);
+
   const orgCounts = {};
   projects.forEach(p => {
     const org = p['Organismo Financiador'];
@@ -165,6 +175,7 @@ export const calculateKPIs = (projects) => {
     vigentesCount,
     enAlpCount,
     enGestionCount,
+    totalSubproyectos,
     orgsDistribution,
   };
 };
