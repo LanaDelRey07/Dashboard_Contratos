@@ -4,18 +4,38 @@ import BoliviaMap from './BoliviaMap';
 import { getAllSectors, getDeptoDistribution } from '../utils/dataProcessing';
 import { DEPARTMENTS, DPTO_DISPLAY_NAMES, ESTADOS_CREDITO, getEstadoColor } from '../utils/formatters';
 
-const Sidebar = ({ selectedDepto, onDeptoSelect, selectedSector, onSectorChange, selectedEstados, onEstadosChange, onClose }) => {
+const ORGANISMOS = [
+  { id: 'BID', label: 'BID', color: '#00843D', bg: 'rgba(0, 132, 61, 0.15)' },
+  { id: 'CAF', label: 'CAF', color: '#009F8C', bg: 'rgba(0, 159, 140, 0.15)' },
+  { id: 'FONPLATA', label: 'FONPLATA', color: '#00A4E4', bg: 'rgba(0, 164, 228, 0.15)' },
+  { id: 'KFW', label: 'KFW', color: '#DC2626', bg: 'rgba(220, 38, 38, 0.15)' },
+  { id: 'BM', label: 'BM (Banco Mundial)', color: '#2563EB', bg: 'rgba(37, 99, 235, 0.15)' }
+];
+
+const Sidebar = ({
+  selectedDepto,
+  onDeptoSelect,
+  selectedSector,
+  onSectorChange,
+  selectedEstados,
+  onEstadosChange,
+  selectedOrganismo,
+  onOrganismoChange,
+  projectsForMap,
+  onClose
+}) => {
   const sectors = useMemo(() => getAllSectors(), []);
-  const distribution = useMemo(() => getDeptoDistribution(), []);
+  const distribution = useMemo(() => getDeptoDistribution(projectsForMap || []), [projectsForMap]);
 
   const clearFilters = () => {
     onDeptoSelect(null);
     onSectorChange('');
     onEstadosChange([]);
+    onOrganismoChange('');
   };
 
   const estadosArray = selectedEstados || [];
-  const hasFilters = selectedDepto || selectedSector || estadosArray.length > 0;
+  const hasFilters = selectedDepto || selectedSector || estadosArray.length > 0 || selectedOrganismo;
 
   const toggleEstado = (estado) => {
     if (estadosArray.includes(estado)) {
@@ -135,6 +155,40 @@ const Sidebar = ({ selectedDepto, onDeptoSelect, selectedSector, onSectorChange,
                   <X className="w-3.5 h-3.5 opacity-50 hover:opacity-100" />
                 </button>
               )}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-medium opacity-70">Organismo Financiador</label>
+              {selectedOrganismo && (
+                <button
+                  onClick={() => onOrganismoChange('')}
+                  className="text-xs opacity-50 hover:opacity-100"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              {ORGANISMOS.map((org) => {
+                const isSelected = selectedOrganismo === org.id;
+                return (
+                  <button
+                    key={org.id}
+                    onClick={() => onOrganismoChange(isSelected ? '' : org.id)}
+                    className={`${org.id === 'BM' ? 'col-span-2' : ''} px-3 py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer flex items-center justify-center text-center select-none`}
+                    style={{
+                      backgroundColor: isSelected ? org.color : 'var(--gray)',
+                      color: isSelected ? '#fff' : 'var(--text)',
+                      borderColor: isSelected ? org.color : 'var(--nav-border)',
+                      boxShadow: isSelected ? `0 0 10px ${org.color}44` : 'none',
+                    }}
+                  >
+                    <span>{org.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

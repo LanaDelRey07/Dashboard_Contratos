@@ -5,6 +5,7 @@ import Sidebar from './components/Sidebar';
 import KPICards from './components/KPICards';
 import SectorChart from './components/SectorChart';
 import StateChart from './components/StateChart';
+import GeneralReadout from './components/GeneralReadout';
 import ProjectList from './components/ProjectList';
 import ProjectDetail from './components/ProjectDetail';
 import { filterProjects, calculateKPIs, getSectorDistribution, getEstadoDistribution, getProjectsWithAlerts, allProjects } from './utils/dataProcessing';
@@ -28,14 +29,30 @@ function App() {
     });
   }, []);
 
+  const [selectedOrganismo, setSelectedOrganismo] = useState('');
+
   const filteredProjects = useMemo(() => {
     try {
       const term = (searchTerm || '').trim().slice(0, 100);
-      return filterProjects({ searchTerm: term, selectedDepto, selectedSector, selectedEstados });
+      return filterProjects({ searchTerm: term, selectedDepto, selectedSector, selectedEstados, selectedOrganismo });
     } catch {
       return allProjects;
     }
-  }, [searchTerm, selectedDepto, selectedSector, selectedEstados]);
+  }, [searchTerm, selectedDepto, selectedSector, selectedEstados, selectedOrganismo]);
+
+  const projectsForMap = useMemo(() => {
+    try {
+      const term = (searchTerm || '').trim().slice(0, 100);
+      return filterProjects({
+        searchTerm: term,
+        selectedSector,
+        selectedEstados,
+        selectedOrganismo
+      });
+    } catch {
+      return allProjects;
+    }
+  }, [searchTerm, selectedSector, selectedEstados, selectedOrganismo]);
 
   const kpisForTotals = useMemo(() => {
     if (!selectedDepto || selectedDepto === 'NACIONAL') {
@@ -67,7 +84,7 @@ function App() {
   };
 
   const crumbs = [];
-  crumbs.push({ label: 'Inicio', onClick: () => { setSelectedProject(null); setSelectedDepto(null); setSearchTerm(''); setSelectedSector(''); setSelectedEstados([]); } });
+  crumbs.push({ label: 'Inicio', onClick: () => { setSelectedProject(null); setSelectedDepto(null); setSearchTerm(''); setSelectedSector(''); setSelectedEstados([]); setSelectedOrganismo(''); } });
   if (selectedDepto) {
     crumbs.push({ label: DPTO_DISPLAY_NAMES[selectedDepto] || selectedDepto, onClick: () => setSelectedProject(null) });
   }
@@ -102,6 +119,9 @@ function App() {
             onSectorChange={(v) => { setSelectedSector(v); setSelectedProject(null); }}
             selectedEstados={selectedEstados}
             onEstadosChange={(v) => { setSelectedEstados(v); setSelectedProject(null); }}
+            selectedOrganismo={selectedOrganismo}
+            onOrganismoChange={(v) => { setSelectedOrganismo(v); setSelectedProject(null); }}
+            projectsForMap={projectsForMap}
             onClose={() => setSidebarOpen(false)}
           />
         </div>
@@ -164,11 +184,12 @@ function App() {
                   </button>
                 </div>
 
-                <KPICards kpis={kpisForTotals} isNational={!selectedDepto || selectedDepto === 'NACIONAL'} />
+                <KPICards kpis={kpisForTotals} />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
                   <SectorChart data={sectorDist} />
                   <StateChart data={estadoDist} />
+                  <GeneralReadout kpis={kpisForTotals} />
                 </div>
 
                 {alertProjects.length > 0 && (

@@ -31,7 +31,7 @@ export const getUniqueEstados = () => {
   return [...estados];
 };
 
-export const filterProjects = ({ searchTerm = '', selectedDepto = null, selectedSector = '', selectedEstados = [] }) => {
+export const filterProjects = ({ searchTerm = '', selectedDepto = null, selectedSector = '', selectedEstados = [], selectedOrganismo = '' }) => {
   let filtered = allProjects;
 
   if (searchTerm && searchTerm.trim().length > 0) {
@@ -73,6 +73,20 @@ export const filterProjects = ({ searchTerm = '', selectedDepto = null, selected
 
   if (selectedEstados.length > 0) {
     filtered = filtered.filter(p => selectedEstados.includes(p['Estado del Crédito']));
+  }
+
+  if (selectedOrganismo) {
+    filtered = filtered.filter(p => {
+      const org = (p['Organismo Financiador'] || '').toUpperCase();
+      const target = selectedOrganismo.toUpperCase();
+      if (target === 'BM') {
+        return org.includes('BM') || org.includes('BANCO MUNDIAL');
+      }
+      if (target === 'KFW') {
+        return org.includes('KFW') || org.includes('ALEMANIA');
+      }
+      return org.includes(target);
+    });
   }
 
   return filtered;
@@ -180,9 +194,9 @@ export const getEstadoDistribution = (projects) => {
   return Object.entries(dist).map(([estado, count]) => ({ estado, count })).sort((a, b) => b.count - a.count);
 };
 
-export const getDeptoDistribution = () => {
+export const getDeptoDistribution = (projects = allProjects) => {
   const dist = {};
-  allProjects.forEach(p => {
+  projects.forEach(p => {
     const depto = p['Departamento'];
     if (depto && depto !== 'NACIONAL') {
       if (!dist[depto]) dist[depto] = { count: 0, total: 0 };
@@ -192,7 +206,7 @@ export const getDeptoDistribution = () => {
     }
   });
   Object.entries(dist).forEach(([depto]) => {
-    const nationalForDepto = allProjects.filter(p =>
+    const nationalForDepto = projects.filter(p =>
       p['Departamento'] === 'NACIONAL' && p['Nacional'] && p['Nacional'].includes(depto)
     );
     nationalForDepto.forEach(p => {
