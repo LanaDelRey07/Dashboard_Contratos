@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { TrendingUp, FolderKanban, BarChart3 } from 'lucide-react';
-import { formatCurrencyFull, formatPercentage } from '../utils/formatters';
+import { formatCurrencyFull } from '../utils/formatters';
 
 const AnimatedNumber = ({ value, formatter, duration = 1200 }) => {
   const safeValue = typeof value === 'number' && isFinite(value) ? value : 0;

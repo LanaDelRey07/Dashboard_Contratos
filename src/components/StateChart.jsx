@@ -13,7 +13,7 @@ const StateChart = ({ data }) => {
       </div>
     );
   }
-  const estadoOrder = ['VIGENTE', 'EN ALP', 'EN GESTIÓN', 'EN CIERRE'];
+  const estadoOrder = ['VIGENTE', 'EN ALP', 'EN GESTIÓN'];
   const sortedData = estadoOrder
     .map(e => data.find(d => d.estado === e))
     .filter(Boolean);

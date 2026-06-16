@@ -1,20 +1,9 @@
 import { useState, useMemo, useCallback } from 'react';
-import { MapPin } from 'lucide-react';
 import { boliviaViewBox, boliviaPaths, boliviaLabelPositions } from '../utils/boliviaPaths';
 import { getDeptoDistribution } from '../utils/dataProcessing';
 import { DPTO_DISPLAY_NAMES } from '../utils/formatters';
 
-const DEPTO_IDS = {
-  'PANDO': 'pando',
-  'BENI': 'beni',
-  'LA PAZ': 'la_paz',
-  'SANTA CRUZ': 'santa_cruz',
-  'COCHABAMBA': 'cochabamba',
-  'ORURO': 'oruro',
-  'POTOSÍ': 'potosi',
-  'CHUQUISACA': 'chuquisaca',
-  'TARIJA': 'tarija',
-};
+
 
 const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
   const [hoveredDepto, setHoveredDepto] = useState(null);

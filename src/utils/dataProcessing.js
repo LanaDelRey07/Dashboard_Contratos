@@ -152,7 +152,7 @@ export const getDeptoDistribution = () => {
       dist[depto].total += isNaN(val) ? 0 : val;
     }
   });
-  Object.entries(dist).forEach(([depto, data]) => {
+  Object.entries(dist).forEach(([depto]) => {
     const nationalForDepto = allProjects.filter(p =>
       p['Departamento'] === 'NACIONAL' && p['Nacional'] && p['Nacional'].includes(depto)
     );

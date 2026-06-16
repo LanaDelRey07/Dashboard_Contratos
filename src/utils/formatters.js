@@ -42,7 +42,6 @@ export const getEstadoColor = (estado) => {
     'VIGENTE': { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-800 dark:text-green-300', border: 'border-green-300', dot: '#22c55e', bar: '#22c55e' },
     'EN ALP': { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-800 dark:text-amber-300', border: 'border-amber-300', dot: '#f59e0b', bar: '#f59e0b' },
     'EN GESTIÓN': { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-800 dark:text-orange-300', border: 'border-orange-300', dot: '#f97316', bar: '#f97316' },
-    'EN CIERRE': { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-800 dark:text-blue-300', border: 'border-blue-300', dot: '#3b82f6', bar: '#3b82f6' },
   };
   return colors[estado] || { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-800 dark:text-gray-300', border: 'border-gray-300', dot: '#6b7280', bar: '#6b7280' };
 };
@@ -72,7 +71,7 @@ export const DEPARTMENTS = [
   'POTOSÍ', 'CHUQUISACA', 'TARIJA', 'BENI', 'PANDO'
 ];
 
-export const ESTADOS_CREDITO = ['VIGENTE', 'EN ALP', 'EN GESTIÓN', 'EN CIERRE'];
+export const ESTADOS_CREDITO = ['VIGENTE', 'EN ALP', 'EN GESTIÓN'];
 
 export const DPTO_DISPLAY_NAMES = {
   'LA PAZ': 'La Paz',
@@ -85,4 +84,18 @@ export const DPTO_DISPLAY_NAMES = {
   'BENI': 'Beni',
   'PANDO': 'Pando',
   'NACIONAL': 'Nacional',
+};
+
+export const formatCurrencyBs = (value) => {
+  if (value === null || value === undefined || value === '') return 'Bs. 0,00';
+  const num = typeof value === 'string' ? parseFloat(value.replace(',', '.')) : value;
+  if (isNaN(num)) return 'Bs. 0,00';
+  return `Bs. ${num.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+export const formatSubprojectPercent = (val) => {
+  if (val === null || val === undefined || val === '') return '-';
+  const num = typeof val === 'string' ? parseFloat(val.replace(',', '.')) : val;
+  if (isNaN(num)) return '-';
+  return `${(num * 100).toFixed(1)}%`;
 };

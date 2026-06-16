@@ -38,16 +38,11 @@ function App() {
   }, [searchTerm, selectedDepto, selectedSector, selectedEstados]);
 
   const kpisForTotals = useMemo(() => {
-    try {
-      if (!selectedDepto || selectedDepto === 'NACIONAL') {
-        return calculateKPIs(filteredProjects);
-      }
-      const deptOnlyProjects = filteredProjects.filter(p => p['Departamento'] === selectedDepto);
-      return calculateKPIs(deptOnlyProjects);
-    } catch (e) {
-      console.error('Error calculating KPIs:', e);
-      return { totalContratado: 0, cantidadProyectos: 0, avgDesembolso: 0, avgAvanceFisico: null };
+    if (!selectedDepto || selectedDepto === 'NACIONAL') {
+      return calculateKPIs(filteredProjects);
     }
+    const deptOnlyProjects = filteredProjects.filter(p => p['Departamento'] === selectedDepto);
+    return calculateKPIs(deptOnlyProjects);
   }, [filteredProjects, selectedDepto]);
 
   const sectorDist = useMemo(() => {
