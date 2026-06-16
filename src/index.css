@@ -10,13 +10,13 @@
   --gold-dark: #8a6f1e;
   
   /* Map custom properties - Light Mode (Soft Grays) */
-  --map-fill-empty: #f9fafb;
-  --map-fill-1: #e5e7eb;
-  --map-fill-2: #d1d5db;
-  --map-fill-3: #9ca3af;
-  --map-fill-4: #6b7280;
-  --map-fill-5: #4b5563;
-  --map-stroke: #e5e7eb;
+  --map-fill-empty: #f8fafc;
+  --map-fill-1: #f1f5f9;
+  --map-fill-2: #e2e8f0;
+  --map-fill-3: #cbd5e1;
+  --map-fill-4: #94a3b8;
+  --map-fill-5: #64748b;
+  --map-stroke: #e2e8f0;
 }
 
 [data-theme="dark"] {
