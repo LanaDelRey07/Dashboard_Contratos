@@ -94,7 +94,7 @@ const KPICards = ({ kpis }) => {
       ),
     },
     {
-      title: 'Cantidad de Subproyectos (Obras)',
+      title: 'Cantidad de Subproyectos',
       value: safeKpis.totalSubproyectos,
       formatter: (v) => Math.round(v).toLocaleString('es-BO'),
       icon: BarChart3,
