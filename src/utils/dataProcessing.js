@@ -80,13 +80,30 @@ export const filterProjects = ({ searchTerm = '', selectedDepto = null, selected
 
 export const calculateKPIs = (projects) => {
   if (!projects || projects.length === 0) {
-    return { totalContratado: 0, cantidadProyectos: 0, avgDesembolso: 0, avgAvanceFisico: null };
+    return {
+      totalContratado: 0,
+      totalDesembolsado: 0,
+      totalPorDesembolsar: 0,
+      cantidadProyectos: 0,
+      avgDesembolso: 0,
+      avgAvanceFisico: null,
+      vigentesCount: 0,
+      enAlpCount: 0,
+      enGestionCount: 0,
+    };
   }
 
   const totalContratado = projects.reduce((acc, p) => {
     const val = parseFloat(String(p['Monto Contratado (USD)'] || '0').replace(',', '.'));
     return acc + (isNaN(val) ? 0 : val);
   }, 0);
+
+  const totalDesembolsado = projects.reduce((acc, p) => {
+    const val = parseFloat(String(p['Monto Desembolsado (USD)'] || '0').replace(',', '.'));
+    return acc + (isNaN(val) ? 0 : val);
+  }, 0);
+
+  const totalPorDesembolsar = totalContratado - totalDesembolsado;
 
   const avgDesembolso = projects.length > 0
     ? projects.reduce((acc, p) => {
@@ -108,11 +125,20 @@ export const calculateKPIs = (projects) => {
     }, 0) / withAvance.length;
   })();
 
+  const vigentesCount = projects.filter(p => p['Estado del Crédito'] === 'VIGENTE').length;
+  const enAlpCount = projects.filter(p => p['Estado del Crédito'] === 'EN ALP').length;
+  const enGestionCount = projects.filter(p => p['Estado del Crédito'] === 'EN GESTIÓN').length;
+
   return {
     totalContratado: isNaN(totalContratado) ? 0 : totalContratado,
+    totalDesembolsado: isNaN(totalDesembolsado) ? 0 : totalDesembolsado,
+    totalPorDesembolsar: isNaN(totalPorDesembolsar) ? 0 : totalPorDesembolsar,
     cantidadProyectos: projects.length,
     avgDesembolso: isNaN(avgDesembolso) ? 0 : avgDesembolso,
     avgAvanceFisico: avgAvanceFisico !== null && isNaN(avgAvanceFisico) ? null : avgAvanceFisico,
+    vigentesCount,
+    enAlpCount,
+    enGestionCount,
   };
 };
 

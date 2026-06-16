@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import subproyectosData from '../data/subproyectos_estructurados.json';
 
 const MARGIN = 20;
 
@@ -81,8 +82,10 @@ export const exportResumenPDF = (depto, projects, kpis) => {
       head: [['Indicador', 'Valor']],
       body: [
         ['Inversión Total Contratada', fmtMoney(kpis.totalContratado)],
+        ['Monto Desembolsado', fmtMoney(kpis.totalDesembolsado)],
+        ['Monto por Desembolsar', fmtMoney(kpis.totalPorDesembolsar)],
         ['Cantidad de Contratos', String(kpis.cantidadProyectos)],
-        ['Desembolso Promedio', fmtPct(kpis.avgDesembolso / 100)],
+        ['Desembolso Financiero Promedio', fmtPct(kpis.avgDesembolso / 100)],
         ...(kpis.avgAvanceFisico !== null ? [['Avance Físico Promedio', fmtPct(kpis.avgAvanceFisico / 100)]] : []),
       ],
       theme: 'grid',
@@ -393,6 +396,47 @@ export const exportFichaPDF = (project) => {
         doc.text(line, MARGIN, currentY);
         currentY += 4.5;
       });
+      y = currentY + 6;
+    }
+
+    // Subproyectos / Obras
+    const subprojects = subproyectosData[project.SISFIN] || [];
+    if (subprojects.length > 0) {
+      if (y > 180) {
+        doc.addPage();
+        y = 20;
+      } else {
+        y += 4;
+      }
+      y = goldLine(y);
+      y = sectionTitle(`DESGLOSE DE SUBPROYECTOS / OBRAS (${subprojects.length})`, y);
+      y += 3;
+
+      const subTableRows = subprojects.map(sub => [
+        fmt(sub.nombre_subproyecto),
+        fmt(sub.codigo_sisin),
+        `Bs. ${parseFloat(sub.presupuesto_2026_bs || 0).toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        fmtPct(sub.avance_fisico),
+        fmtPct(sub.avance_financiero)
+      ]);
+
+      autoTable(doc, {
+        startY: y,
+        margin: { left: MARGIN, right: MARGIN },
+        head: [['Subproyecto / Obra', 'Código SISIN', 'Presupuesto 2026', 'Av. Físico', 'Av. Financiero']],
+        body: subTableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontSize: 8 },
+        bodyStyles: { fontSize: 7 },
+        columnStyles: {
+          0: { cellWidth: 70 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 35, halign: 'right' },
+          3: { cellWidth: 20, halign: 'center' },
+          4: { cellWidth: 20, halign: 'center' },
+        },
+      });
+      y = doc.lastAutoTable.finalY + 8;
     }
 
     addFooter(doc);

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { TrendingUp, FolderKanban, BarChart3 } from 'lucide-react';
-import { formatCurrencyFull } from '../utils/formatters';
+import { TrendingUp, FolderKanban, BarChart3, Activity } from 'lucide-react';
+import { formatCurrencyFull, formatCurrency } from '../utils/formatters';
 
 const AnimatedNumber = ({ value, formatter, duration = 1200 }) => {
   const safeValue = typeof value === 'number' && isFinite(value) ? value : 0;
@@ -33,8 +33,14 @@ const AnimatedNumber = ({ value, formatter, duration = 1200 }) => {
 const KPICards = ({ kpis, isNational }) => {
   const safeKpis = {
     totalContratado: typeof kpis.totalContratado === 'number' && isFinite(kpis.totalContratado) ? kpis.totalContratado : 0,
+    totalDesembolsado: typeof kpis.totalDesembolsado === 'number' && isFinite(kpis.totalDesembolsado) ? kpis.totalDesembolsado : 0,
+    totalPorDesembolsar: typeof kpis.totalPorDesembolsar === 'number' && isFinite(kpis.totalPorDesembolsar) ? kpis.totalPorDesembolsar : 0,
     cantidadProyectos: typeof kpis.cantidadProyectos === 'number' && isFinite(kpis.cantidadProyectos) ? kpis.cantidadProyectos : 0,
     avgDesembolso: typeof kpis.avgDesembolso === 'number' && isFinite(kpis.avgDesembolso) ? kpis.avgDesembolso : 0,
+    avgAvanceFisico: typeof kpis.avgAvanceFisico === 'number' && isFinite(kpis.avgAvanceFisico) ? kpis.avgAvanceFisico : null,
+    vigentesCount: typeof kpis.vigentesCount === 'number' && isFinite(kpis.vigentesCount) ? kpis.vigentesCount : 0,
+    enAlpCount: typeof kpis.enAlpCount === 'number' && isFinite(kpis.enAlpCount) ? kpis.enAlpCount : 0,
+    enGestionCount: typeof kpis.enGestionCount === 'number' && isFinite(kpis.enGestionCount) ? kpis.enGestionCount : 0,
   };
 
   const cards = [
@@ -45,6 +51,22 @@ const KPICards = ({ kpis, isNational }) => {
       icon: TrendingUp,
       accent: 'var(--gold)',
       bgAccent: 'rgba(184, 149, 44, 0.1)',
+      breakdown: (
+        <div className="mt-3 pt-3 border-t border-[var(--nav-border)] grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <span className="opacity-60 block text-[10px] uppercase font-medium">Monto Desembolsado</span>
+            <span className="font-semibold text-green-600 dark:text-green-400">
+              {formatCurrency(safeKpis.totalDesembolsado)}
+            </span>
+          </div>
+          <div>
+            <span className="opacity-60 block text-[10px] uppercase font-medium">Por Desembolsar</span>
+            <span className="font-semibold text-orange-600 dark:text-orange-400">
+              {formatCurrency(safeKpis.totalPorDesembolsar)}
+            </span>
+          </div>
+        </div>
+      ),
     },
     {
       title: 'Cantidad de Contratos',
@@ -53,25 +75,49 @@ const KPICards = ({ kpis, isNational }) => {
       icon: FolderKanban,
       accent: '#2563eb',
       bgAccent: 'rgba(37, 99, 235, 0.1)',
+      breakdown: (
+        <div className="mt-3 pt-3 border-t border-[var(--nav-border)] grid grid-cols-3 gap-1 text-[10px] text-center">
+          <div>
+            <span className="opacity-60 block">Vigente</span>
+            <span className="font-semibold text-green-600 dark:text-green-400">{safeKpis.vigentesCount}</span>
+          </div>
+          <div>
+            <span className="opacity-60 block">En ALP</span>
+            <span className="font-semibold text-amber-600 dark:text-amber-400">{safeKpis.enAlpCount}</span>
+          </div>
+          <div>
+            <span className="opacity-60 block">En Gestión</span>
+            <span className="font-semibold text-orange-600 dark:text-orange-400">{safeKpis.enGestionCount}</span>
+          </div>
+        </div>
+      ),
     },
     {
-      title: isNational ? 'Desembolso Promedio' : 'Avance Promedio',
+      title: isNational ? 'Desembolso Financiero Promedio' : 'Avance Financiero Promedio',
       value: safeKpis.avgDesembolso,
       formatter: (v) => `${isFinite(v) ? v.toFixed(1) : '0.0'}%`,
       icon: BarChart3,
       accent: '#16a34a',
       bgAccent: 'rgba(22, 163, 74, 0.1)',
     },
+    {
+      title: 'Avance Físico Promedio',
+      value: safeKpis.avgAvanceFisico !== null ? safeKpis.avgAvanceFisico : 0,
+      formatter: (v) => safeKpis.avgAvanceFisico !== null ? `${v.toFixed(1)}%` : '-',
+      icon: Activity,
+      accent: '#8b5cf6',
+      bgAccent: 'rgba(139, 92, 246, 0.1)',
+    },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       {cards.map((card, i) => {
         const Icon = card.icon;
         return (
           <div
             key={card.title}
-            className="kpi-card rounded-xl p-5 border transition-all"
+            className="kpi-card rounded-xl p-5 border transition-all flex flex-col justify-between"
             style={{
               backgroundColor: 'var(--bg)',
               borderColor: 'var(--nav-border)',
@@ -79,20 +125,23 @@ const KPICards = ({ kpis, isNational }) => {
               animationDelay: `${i * 0.1}s`,
             }}
           >
-            <div className="flex items-start justify-between mb-3">
-              <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: card.bgAccent }}
-              >
-                <Icon className="w-5 h-5" style={{ color: card.accent }} />
+            <div>
+              <div className="flex items-start justify-between mb-3">
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: card.bgAccent }}
+                >
+                  <Icon className="w-5 h-5" style={{ color: card.accent }} />
+                </div>
               </div>
+              <p className="text-xs font-medium uppercase tracking-wider opacity-60 mb-1">
+                {card.title}
+              </p>
+              <p className="text-2xl font-bold leading-tight" style={{ color: 'var(--text)' }}>
+                <AnimatedNumber value={card.value} formatter={card.formatter} duration={1400} />
+              </p>
             </div>
-            <p className="text-xs font-medium uppercase tracking-wider opacity-60 mb-1">
-              {card.title}
-            </p>
-            <p className="text-2xl font-bold leading-tight" style={{ color: 'var(--text)' }}>
-              <AnimatedNumber value={card.value} formatter={card.formatter} duration={1400} />
-            </p>
+            {card.breakdown && card.breakdown}
           </div>
         );
       })}
