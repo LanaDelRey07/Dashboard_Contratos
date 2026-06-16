@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { TrendingUp, FolderKanban, BarChart3, Activity } from 'lucide-react';
+import { TrendingUp, FolderKanban, BarChart3 } from 'lucide-react';
 import { formatCurrencyFull, formatCurrency } from '../utils/formatters';
 
 const AnimatedNumber = ({ value, formatter, duration = 1200 }) => {
@@ -37,11 +37,13 @@ const KPICards = ({ kpis, isNational }) => {
     totalPorDesembolsar: typeof kpis.totalPorDesembolsar === 'number' && isFinite(kpis.totalPorDesembolsar) ? kpis.totalPorDesembolsar : 0,
     cantidadProyectos: typeof kpis.cantidadProyectos === 'number' && isFinite(kpis.cantidadProyectos) ? kpis.cantidadProyectos : 0,
     avgDesembolso: typeof kpis.avgDesembolso === 'number' && isFinite(kpis.avgDesembolso) ? kpis.avgDesembolso : 0,
-    avgAvanceFisico: typeof kpis.avgAvanceFisico === 'number' && isFinite(kpis.avgAvanceFisico) ? kpis.avgAvanceFisico : null,
     vigentesCount: typeof kpis.vigentesCount === 'number' && isFinite(kpis.vigentesCount) ? kpis.vigentesCount : 0,
     enAlpCount: typeof kpis.enAlpCount === 'number' && isFinite(kpis.enAlpCount) ? kpis.enAlpCount : 0,
     enGestionCount: typeof kpis.enGestionCount === 'number' && isFinite(kpis.enGestionCount) ? kpis.enGestionCount : 0,
+    orgsDistribution: Array.isArray(kpis.orgsDistribution) ? kpis.orgsDistribution : [],
   };
+
+  const topOrgs = safeKpis.orgsDistribution.slice(0, 3);
 
   const cards = [
     {
@@ -99,19 +101,24 @@ const KPICards = ({ kpis, isNational }) => {
       icon: BarChart3,
       accent: '#16a34a',
       bgAccent: 'rgba(22, 163, 74, 0.1)',
-    },
-    {
-      title: 'Avance Físico Promedio',
-      value: safeKpis.avgAvanceFisico !== null ? safeKpis.avgAvanceFisico : 0,
-      formatter: (v) => safeKpis.avgAvanceFisico !== null ? `${v.toFixed(1)}%` : '-',
-      icon: Activity,
-      accent: '#8b5cf6',
-      bgAccent: 'rgba(139, 92, 246, 0.1)',
+      breakdown: (
+        <div className="mt-3 pt-3 border-t border-[var(--nav-border)] grid grid-cols-3 gap-1 text-[9px] text-center">
+          {topOrgs.map((o, idx) => (
+            <div key={idx} className="min-w-0">
+              <span className="opacity-60 block truncate font-medium uppercase text-[8px]" title={o.org}>{o.org}</span>
+              <span className="font-semibold text-blue-600 dark:text-blue-400">{o.count} contr.</span>
+            </div>
+          ))}
+          {topOrgs.length === 0 && (
+            <span className="opacity-50 col-span-3 text-[8px] italic">Sin datos</span>
+          )}
+        </div>
+      ),
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       {cards.map((card, i) => {
         const Icon = card.icon;
         return (

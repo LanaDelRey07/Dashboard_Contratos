@@ -90,6 +90,7 @@ export const calculateKPIs = (projects) => {
       vigentesCount: 0,
       enAlpCount: 0,
       enGestionCount: 0,
+      orgsDistribution: [],
     };
   }
 
@@ -129,6 +130,17 @@ export const calculateKPIs = (projects) => {
   const enAlpCount = projects.filter(p => p['Estado del Crédito'] === 'EN ALP').length;
   const enGestionCount = projects.filter(p => p['Estado del Crédito'] === 'EN GESTIÓN').length;
 
+  const orgCounts = {};
+  projects.forEach(p => {
+    const org = p['Organismo Financiador'];
+    if (org) {
+      orgCounts[org] = (orgCounts[org] || 0) + 1;
+    }
+  });
+  const orgsDistribution = Object.entries(orgCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([org, count]) => ({ org, count }));
+
   return {
     totalContratado: isNaN(totalContratado) ? 0 : totalContratado,
     totalDesembolsado: isNaN(totalDesembolsado) ? 0 : totalDesembolsado,
@@ -139,6 +151,7 @@ export const calculateKPIs = (projects) => {
     vigentesCount,
     enAlpCount,
     enGestionCount,
+    orgsDistribution,
   };
 };
 
