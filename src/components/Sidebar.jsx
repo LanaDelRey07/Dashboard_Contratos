@@ -87,7 +87,51 @@ const Sidebar = ({
           deptoData={distribution}
         />
 
-        <div className="mt-5">
+        {/* Estado del Crédito - Reubicado debajo del mapa */}
+        <div className="mt-4 pt-4 border-t border-[var(--nav-border)]">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--gold)' }}>
+              Estado del Crédito
+            </span>
+            {estadosArray.length > 0 && (
+              <button
+                onClick={() => onEstadosChange([])}
+                className="text-xs opacity-50 hover:opacity-100"
+              >
+                Limpiar
+              </button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {ESTADOS_CREDITO.map((estado) => {
+              const isActive = estadosArray.includes(estado);
+              const colors = getEstadoColor(estado);
+              return (
+                <button
+                  key={estado}
+                  onClick={() => toggleEstado(estado)}
+                  className={`px-2.5 py-1 text-xs font-medium rounded-full transition-all border ${colors.bg} ${colors.text} ${colors.border}`}
+                  style={{
+                    backgroundColor: isActive ? colors.bar : 'var(--gray)',
+                    color: isActive ? '#fff' : 'var(--text)',
+                    borderColor: isActive ? colors.bar : 'var(--nav-border)',
+                    '--bar-color': colors.bar,
+                  }}
+                >
+                  {estado}
+                </button>
+              );
+            })}
+          </div>
+          {estadosArray.length > 0 && (
+            <p className="text-xs opacity-50 mt-1">
+              {estadosArray.length} estado{estadosArray.length > 1 ? 's' : ''} seleccionado{estadosArray.length > 1 ? 's' : ''}
+            </p>
+          )}
+        </div>
+
+        {/* Departamentos */}
+        <div className="mt-4 pt-4 border-t border-[var(--nav-border)]">
           <div className="flex items-center gap-1 mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--gold)' }}>
               Departamentos
@@ -190,46 +234,6 @@ const Sidebar = ({
                 );
               })}
             </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-medium opacity-70">Estado del Crédito</label>
-              {estadosArray.length > 0 && (
-                <button
-                  onClick={() => onEstadosChange([])}
-                  className="text-xs opacity-50 hover:opacity-100"
-                >
-                  Limpiar
-                </button>
-              )}
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {ESTADOS_CREDITO.map((estado) => {
-                const isActive = estadosArray.includes(estado);
-                const colors = getEstadoColor(estado);
-                return (
-                  <button
-                    key={estado}
-                    onClick={() => toggleEstado(estado)}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full transition-all border ${colors.bg} ${colors.text} ${colors.border}`}
-                    style={{
-                      backgroundColor: isActive ? colors.bar : 'var(--gray)',
-                      color: isActive ? '#fff' : 'var(--text)',
-                      borderColor: isActive ? colors.bar : 'var(--nav-border)',
-                      '--bar-color': colors.bar,
-                    }}
-                  >
-                    {estado}
-                  </button>
-                );
-              })}
-            </div>
-            {estadosArray.length > 0 && (
-              <p className="text-xs opacity-50 mt-1">
-                {estadosArray.length} estado{estadosArray.length > 1 ? 's' : ''} seleccionado{estadosArray.length > 1 ? 's' : ''}
-              </p>
-            )}
           </div>
         </div>
       </div>

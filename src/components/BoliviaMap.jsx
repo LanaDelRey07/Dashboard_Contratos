@@ -3,8 +3,6 @@ import { boliviaViewBox, boliviaPaths, boliviaLabelPositions } from '../utils/bo
 import { getDeptoDistribution } from '../utils/dataProcessing';
 import { DPTO_DISPLAY_NAMES } from '../utils/formatters';
 
-
-
 const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
   const [hoveredDepto, setHoveredDepto] = useState(null);
 
@@ -15,17 +13,17 @@ const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
   const getDeptoColor = useCallback((deptoName) => {
     if (!distribution[deptoName]) return null;
     const total = distribution[deptoName].total;
-    if (total >= 500_000_000) return '#1e3a5f';
-    if (total >= 200_000_000) return '#2d5a8e';
-    if (total >= 100_000_000) return '#4a7fb5';
-    if (total >= 50_000_000) return '#6b9fd4';
-    return '#a3c4e8';
+    if (total >= 500_000_000) return '#991b1b'; // Strong red-800
+    if (total >= 200_000_000) return '#dc2626'; // Vibrant red-600
+    if (total >= 100_000_000) return '#f87171'; // Light red-400
+    if (total >= 50_000_000) return '#fca5a5';  // Soft red-300
+    return '#ffe4e6';                           // Very soft rose-red-100
   }, [distribution]);
 
   const isDark = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark';
-  const defaultFill = isDark ? '#2a2a3a' : '#e8e0d4';
-  const strokeColor = isDark ? '#555' : '#8b7d6b';
-  const goldColor = '#b8952c';
+  const defaultFill = isDark ? '#262626' : '#f5f5f7';
+  const strokeColor = isDark ? '#404040' : '#e5e7eb';
+  const contrastColor = '#d4af37'; // Gold contrast color
 
   const labelPositionsScaled = useMemo(() => {
     return boliviaLabelPositions;
@@ -47,8 +45,8 @@ const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
             <path
               key={deptoName}
               d={pathData}
-              fill={isSelected ? goldColor : (colorFill || defaultFill)}
-              stroke={isSelected ? goldColor : strokeColor}
+              fill={isSelected ? contrastColor : (colorFill || defaultFill)}
+              stroke={isSelected ? contrastColor : strokeColor}
               strokeWidth={isSelected ? '4' : isHovered ? '3' : '2'}
               className="depto-path"
               style={{
@@ -134,7 +132,7 @@ const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
                   x={pos.x}
                   y={pos.y - 46}
                   textAnchor="middle"
-                  fill="#b8952c"
+                  fill={contrastColor}
                   fontSize="18"
                   fontWeight="500"
                   className="pointer-events-none"
@@ -149,19 +147,19 @@ const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
 
       <div className="flex items-center justify-center gap-3 mt-2 text-xs" style={{ color: 'var(--text)', opacity: 0.7 }}>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#a3c4e8' }}></span> &lt;$50M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#ffe4e6' }}></span> &lt;$50M
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#6b9fd4' }}></span> $50-100M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#fca5a5' }}></span> $50-100M
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#2d5a8e' }}></span> $100-500M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#f87171' }}></span> $100-500M
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#1e3a5f' }}></span> &gt;$500M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#991b1b' }}></span> &gt;$500M
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: '#b8952c' }}></span> Selección
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: contrastColor }}></span> Selección
         </span>
       </div>
     </div>
