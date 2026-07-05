@@ -44,7 +44,7 @@ export const getRegistryEjecutores = () => {
 };
 
 // Filter Projects
-export const filterInversionProjects = ({ searchTerm = '', selectedDepto = null, selectedSector = '', selectedAdmin = '' }) => {
+export const filterInversionProjects = ({ searchTerm = '', selectedDepto = null, selectedSector = '', selectedAdmin = '', selectedEstadosIP = [] }) => {
   let filtered = allInversionProjects;
 
   if (selectedDepto && selectedDepto !== 'NACIONAL') {
@@ -57,6 +57,10 @@ export const filterInversionProjects = ({ searchTerm = '', selectedDepto = null,
 
   if (selectedAdmin) {
     filtered = filtered.filter(p => p.tipo_administracion === selectedAdmin);
+  }
+
+  if (selectedEstadosIP && selectedEstadosIP.length > 0) {
+    filtered = filtered.filter(p => selectedEstadosIP.includes(p.estado));
   }
 
   if (searchTerm.trim()) {

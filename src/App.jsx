@@ -31,6 +31,7 @@ function App() {
   const [selectedDepto, setSelectedDepto] = useState(null);
   const [selectedSector, setSelectedSector] = useState('');
   const [selectedEstados, setSelectedEstados] = useState([]);
+  const [selectedEstadosIP, setSelectedEstadosIP] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -120,6 +121,7 @@ function App() {
       setSearchTerm(''); 
       setSelectedSector(''); 
       setSelectedEstados([]); 
+      setSelectedEstadosIP([]);
       setSelectedOrganismo(''); 
     } 
   });
@@ -146,7 +148,7 @@ function App() {
           Panel General:
         </span>
         <button
-          onClick={() => { setActiveDashboard('financiamiento-externo'); setSelectedDepto(null); setSelectedProject(null); }}
+          onClick={() => { setActiveDashboard('financiamiento-externo'); setSelectedDepto(null); setSelectedProject(null); setSelectedEstadosIP([]); }}
           className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer whitespace-nowrap ${
             activeDashboard === 'financiamiento-externo' ? 'bg-[var(--gold)] text-white border-[var(--gold)] shadow-md' : 'bg-[var(--gray)] text-[var(--text)] border-[var(--nav-border)] hover:bg-black/5 dark:hover:bg-white/5'
           }`}
@@ -154,7 +156,7 @@ function App() {
           💳 Financiamiento Externo
         </button>
         <button
-          onClick={() => { setActiveDashboard('inversion-publica'); setSelectedDepto(null); setSelectedProject(null); }}
+          onClick={() => { setActiveDashboard('inversion-publica'); setSelectedDepto(null); setSelectedProject(null); setSelectedEstadosIP([]); }}
           className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer whitespace-nowrap ${
             activeDashboard === 'inversion-publica' ? 'bg-[var(--gold)] text-white border-[var(--gold)] shadow-md' : 'bg-[var(--gray)] text-[var(--text)] border-[var(--nav-border)] hover:bg-black/5 dark:hover:bg-white/5'
           }`}
@@ -162,7 +164,7 @@ function App() {
           🏛️ Inversión Pública
         </button>
         <button
-          onClick={() => { setActiveDashboard('inversion-plurianual'); setSelectedDepto(null); setSelectedProject(null); }}
+          onClick={() => { setActiveDashboard('inversion-plurianual'); setSelectedDepto(null); setSelectedProject(null); setSelectedEstadosIP([]); }}
           className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all cursor-pointer whitespace-nowrap ${
             activeDashboard === 'inversion-plurianual' ? 'bg-[var(--gold)] text-white border-[var(--gold)] shadow-md' : 'bg-[var(--gray)] text-[var(--text)] border-[var(--nav-border)] hover:bg-black/5 dark:hover:bg-white/5'
           }`}
@@ -194,6 +196,8 @@ function App() {
             deptoDistribution={mapDistribution}
             onClose={() => setSidebarOpen(false)}
             activeDashboard={activeDashboard}
+            selectedEstadosIP={selectedEstadosIP}
+            onEstadosIPChange={setSelectedEstadosIP}
           />
         </div>
 
@@ -309,7 +313,7 @@ function App() {
                 </>
               )
             ) : activeDashboard === 'inversion-publica' ? (
-              <InversionPublicaDashboard selectedDepto={selectedDepto} onDeptoSelect={setSelectedDepto} />
+              <InversionPublicaDashboard selectedDepto={selectedDepto} selectedEstadosIP={selectedEstadosIP} />
             ) : (
               <InversionPlurianualDashboard selectedDepto={selectedDepto} />
             )}

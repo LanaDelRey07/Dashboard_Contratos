@@ -19,7 +19,21 @@ import { DPTO_DISPLAY_NAMES } from '../utils/formatters';
 
 const ITEMS_PER_PAGE = 15;
 
-const InversionPublicaDashboard = ({ selectedDepto }) => {
+const getInversionProjectStateClass = (estado) => {
+  const est = (estado || '').toLowerCase();
+  if (est.includes('ejecución') || est.includes('adjudicado') || est.includes('proceso')) {
+    return 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-455 border border-emerald-200 dark:border-emerald-800';
+  }
+  if (est.includes('paralizado') || est.includes('retrasado') || est.includes('cancelado') || est.includes('desestimado') || est.includes('recisión')) {
+    return 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-455 border border-rose-200 dark:border-rose-800';
+  }
+  if (est.includes('cierre') || est.includes('informe') || est.includes('entrega') || est.includes('provisional') || est.includes('definitiva')) {
+    return 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-455 border border-blue-200 dark:border-blue-800';
+  }
+  return 'bg-slate-50 dark:bg-slate-900/40 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800';
+};
+
+const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) => {
   const [activeSubTab, setActiveSubTab] = useState('projects'); // 'projects' or 'registries'
   
   // Search and filter states
@@ -68,7 +82,8 @@ const InversionPublicaDashboard = ({ selectedDepto }) => {
         searchTerm,
         selectedDepto,
         selectedSector,
-        selectedAdmin
+        selectedAdmin,
+        selectedEstadosIP
       });
     } else {
       return filterInversionRegistries({
@@ -79,7 +94,7 @@ const InversionPublicaDashboard = ({ selectedDepto }) => {
         selectedMunicipio: selectedMuni
       });
     }
-  }, [activeSubTab, searchTerm, selectedDepto, selectedSector, selectedAdmin, selectedEjecutor, selectedMuni]);
+  }, [activeSubTab, searchTerm, selectedDepto, selectedSector, selectedAdmin, selectedEjecutor, selectedMuni, selectedEstadosIP]);
 
   // Calculate KPIs
   const kpis = useMemo(() => {
@@ -413,7 +428,7 @@ const InversionPublicaDashboard = ({ selectedDepto }) => {
                     <td className="p-3 text-center">{fmtPercent(p.avance_fisico * 100)}</td>
                     <td className="p-3 text-center">{fmtPercent(p.avance_financiero * 100)}</td>
                     <td className="p-3">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-350 border border-slate-300 dark:border-slate-700">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] border font-medium whitespace-nowrap ${getInversionProjectStateClass(p.estado)}`}>
                         {p.estado || 'En proceso'}
                       </span>
                     </td>
@@ -522,134 +537,65 @@ const InversionPublicaDashboard = ({ selectedDepto }) => {
             </div>
             
             <div className="p-6 overflow-y-auto space-y-4 text-xs">
-              {selectedItem.type === 'project' ? (
-                <>
-                  <div className="border-b pb-2 mb-2">
-                    <span className="opacity-50 uppercase text-[9px] font-bold">Proyecto</span>
-                    <h4 className="text-sm font-bold mt-0.5" style={{ color: 'var(--gold)' }}>{selectedItem.data.nombre_proyecto}</h4>
-                  </div>
+              <div className="border-b pb-2 mb-2">
+                <span className="opacity-50 uppercase text-[9px] font-bold">
+                  {selectedItem.type === 'project' ? 'Proyecto de Inversión' : 'Obra / Registro'}
+                </span>
+                <h4 className="text-sm font-bold mt-0.5" style={{ color: 'var(--gold)' }}>
+                  {selectedItem.data.nombre_proyecto || selectedItem.data.nombre_obra || 'Sin nombre'}
+                </h4>
+                <p className="font-mono text-[10px] opacity-60 mt-0.5">SISIN: {selectedItem.data.sisin || 'Sin registro'}</p>
+              </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Código SISIN</span>
-                      <span className="font-mono text-sm">{selectedItem.data.sisin}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Departamento</span>
-                      <span>{DPTO_DISPLAY_NAMES[selectedItem.data.departamento_macro] || selectedItem.data.departamento_macro || '-'}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Sector Económico</span>
-                      <span>{selectedItem.data.sector_economico || '-'}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Tipo de Administración</span>
-                      <span>{selectedItem.data.tipo_administracion || '-'}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Presupuesto Vigente 2026</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">{fmtBs(selectedItem.data.presupuesto_vigente_2026_bs)}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Ejecución Acumulada 2025</span>
-                      <span>{fmtBs(selectedItem.data.ejecucion_acumulada_2025_bs)}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Ejecución Gestión 2026</span>
-                      <span>{fmtBs(selectedItem.data.ejecucion_2026_bs)}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Año de Conclusión</span>
-                      <span>{selectedItem.data.ano_conclusion || 'Sin registrar'}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Avance Físico</span>
-                      <span className="font-semibold">{fmtPercent(selectedItem.data.avance_fisico * 100)}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Avance Financiero</span>
-                      <span className="font-semibold">{fmtPercent(selectedItem.data.avance_financiero * 100)}</span>
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {Object.entries(selectedItem.data).map(([key, val]) => {
+                  if (key === '_id' || key === 'cronograma_proyecciones') return null;
 
-                  <div>
-                    <span className="opacity-50 block uppercase text-[9px] font-bold mb-1">Estado de Ejecución</span>
-                    <span className="px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 border text-slate-700 dark:text-slate-300 font-semibold">
-                      {selectedItem.data.estado || 'En proceso'}
-                    </span>
-                  </div>
+                  // Format label: e.g. "ejecucion_acumulada_2025_bs" -> "Ejecucion Acumulada 2025 Bs"
+                  const label = key
+                    .split('_')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ');
 
-                  {selectedItem.data.cronograma_proyecciones && (
-                    <div className="border-t pt-3">
-                      <span className="opacity-50 block uppercase text-[9px] font-bold mb-2">Cronograma de Proyecciones</span>
-                      <div className="grid grid-cols-4 gap-2 text-center text-[10px]">
-                        {Object.entries(selectedItem.data.cronograma_proyecciones).map(([yr, val]) => (
-                          <div key={yr} className="p-2 rounded bg-black/5 dark:bg-white/5">
-                            <span className="block font-bold opacity-60">{yr}</span>
-                            <span>{val || '0'}</span>
-                          </div>
-                        ))}
+                  let formattedVal = val;
+                  if (val === null || val === undefined || val === '') {
+                    formattedVal = '-';
+                  } else if (typeof val === 'number') {
+                    if (key.endsWith('_bs') || key.includes('monto')) {
+                      formattedVal = fmtBs(val);
+                    } else if (key.includes('avance') || key.includes('porcentaje')) {
+                      formattedVal = fmtPercent(val <= 1 ? val * 100 : val);
+                    } else {
+                      formattedVal = val.toLocaleString();
+                    }
+                  } else if (typeof val === 'object') {
+                    return null;
+                  }
+
+                  return (
+                    <div key={key} className="p-3 rounded-lg border bg-black/5 dark:bg-white/5" style={{ borderColor: 'var(--nav-border)' }}>
+                      <span className="opacity-50 block uppercase text-[9px] font-bold mb-0.5">{label}</span>
+                      <span className="font-semibold text-xs break-words" style={{ color: 'var(--text)' }}>
+                        {String(formattedVal)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Cronograma Proyecciones */}
+              {selectedItem.type === 'project' && selectedItem.data.cronograma_proyecciones && (
+                <div className="border-t pt-3 mt-4">
+                  <span className="opacity-50 block uppercase text-[9px] font-bold mb-2">Cronograma de Proyecciones</span>
+                  <div className="grid grid-cols-4 gap-2 text-center text-[10px]">
+                    {Object.entries(selectedItem.data.cronograma_proyecciones).map(([yr, val]) => (
+                      <div key={yr} className="p-2 rounded bg-black/5 dark:bg-white/5 border" style={{ borderColor: 'var(--nav-border)' }}>
+                        <span className="block font-bold opacity-60">{yr}</span>
+                        <span>{val || '0'}</span>
                       </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <div className="border-b pb-2 mb-2">
-                    <span className="opacity-50 uppercase text-[9px] font-bold">Obra / Registro</span>
-                    <h4 className="text-sm font-bold mt-0.5" style={{ color: 'var(--gold)' }}>{selectedItem.data.nombre_obra}</h4>
+                    ))}
                   </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Código SISIN</span>
-                      <span className="font-mono text-sm">{selectedItem.data.sisin}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Ubicación</span>
-                      <span>{selectedItem.data.municipio} ({DPTO_DISPLAY_NAMES[selectedItem.data.departamento] || selectedItem.data.departamento})</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Sector Específico</span>
-                      <span>{selectedItem.data.sector_especifico || '-'}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Fuente de Recursos</span>
-                      <span>{selectedItem.data.fuente_recursos || '-'}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Presupuesto Vigente 2026</span>
-                      <span className="font-bold text-emerald-600 dark:text-emerald-400">{fmtBs(selectedItem.data.presupuesto_vigente_2026_bs)}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Avance Ejecución Monto</span>
-                      <span className="font-semibold text-blue-500">{fmtBs(selectedItem.data.avance_ejecucion_monto_bs)}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Avance Ejecución Porcentaje</span>
-                      <span className="font-semibold text-lg">{fmtPercent(selectedItem.data.avance_ejecucion_porcentaje * 100)}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Institución Ejecutora</span>
-                      <span>{selectedItem.data.ejecutor_institucion || '-'}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Fecha Inicio de Obras</span>
-                      <span>{selectedItem.data.fecha_inicio_obras || 'Sin registrar'}</span>
-                    </div>
-                    <div>
-                      <span className="opacity-50 block uppercase text-[9px] font-bold">Fecha Estimada Conclusión</span>
-                      <span>{selectedItem.data.fecha_estimada_conclusion || 'Sin registrar'}</span>
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <span className="opacity-50 block uppercase text-[9px] font-bold mb-1">Estado de la Obra</span>
-                    <span className="px-2.5 py-1 rounded bg-slate-100 dark:bg-slate-800 border text-slate-700 dark:text-slate-300 font-semibold">
-                      {selectedItem.data.estado_obra || 'Sin registrar'}
-                    </span>
-                  </div>
-                </>
+                </div>
               )}
             </div>
 

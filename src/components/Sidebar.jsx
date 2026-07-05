@@ -23,7 +23,9 @@ const Sidebar = ({
   onOrganismoChange,
   deptoDistribution,
   onClose,
-  activeDashboard
+  activeDashboard,
+  selectedEstadosIP = [],
+  onEstadosIPChange
 }) => {
   const sectors = useMemo(() => getAllSectors(), []);
   const distribution = deptoDistribution || {};
@@ -33,6 +35,7 @@ const Sidebar = ({
     onSectorChange('');
     onEstadosChange([]);
     onOrganismoChange('');
+    if (onEstadosIPChange) onEstadosIPChange([]);
   };
 
   const estadosArray = selectedEstados || [];
@@ -167,6 +170,69 @@ const Sidebar = ({
             })}
           </div>
         </div>
+
+        {/* Estado del Proyecto (Inversión Pública - Proyectos) */}
+        {activeDashboard === 'inversion-publica' && (
+          <div className="mt-4 pt-4 border-t border-[var(--nav-border)]">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--gold)' }}>
+                Estado del Proyecto
+              </span>
+              {selectedEstadosIP.length > 0 && (
+                <button
+                  onClick={() => onEstadosIPChange([])}
+                  className="text-xs opacity-50 hover:opacity-100"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
+            <div className="space-y-1.5 max-h-48 overflow-y-auto scrollbar-thin pr-1">
+              {[
+                'En ejecución',
+                'En proceso de adjudicación',
+                'En Cierre',
+                'Paralizado y/o Retrasado',
+                'Con entrega provisional',
+                'Con entrega definitiva',
+                'Adjudicado',
+                'Desestimado por el MDPRyA',
+                'El MDPRyA solictará Inscripción de PPTO esta Gestión',
+                'Programa Sectorial',
+                'Recisión de contrato',
+                'Convocatoria desierta',
+                'Cancelado',
+                'Entrega de informe final',
+                'Cierre de Estudio - Sin ejecución de recursos de Inversión Pública',
+                'Entrega de informes',
+                'Sin registro'
+              ].map((estado) => {
+                const isActive = selectedEstadosIP.includes(estado);
+                return (
+                  <label
+                    key={estado}
+                    className="flex items-start gap-2 text-[11px] cursor-pointer hover:opacity-85 py-0.5"
+                    style={{ color: 'var(--text)' }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={() => {
+                        if (isActive) {
+                          onEstadosIPChange(selectedEstadosIP.filter(e => e !== estado));
+                        } else {
+                          onEstadosIPChange([...selectedEstadosIP, estado]);
+                        }
+                      }}
+                      className="mt-0.5 rounded border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-[var(--gold)] focus:ring-[var(--gold)]"
+                    />
+                    <span className="leading-tight">{estado}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {activeDashboard === 'financiamiento-externo' && (
