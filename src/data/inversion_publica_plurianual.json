@@ -1,0 +1,322 @@
+[
+    {
+        "departamento": "NACIONAL",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 1706573958.0,
+        "proyecciones": {
+            "2027": 992861642.0,
+            "2028": 1216925443.0,
+            "2029": 1018109087.0,
+            "2030": 846956057.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 5781426187.0
+    },
+    {
+        "departamento": "NACIONAL",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 4074690700.98,
+        "proyecciones": {
+            "2027": 433262642.0,
+            "2028": 114006348.0,
+            "2029": 64949496.0,
+            "2030": 30827550.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 4717736736.98
+    },
+    {
+        "departamento": "SANTA CRUZ",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 1952241385.0,
+        "proyecciones": {
+            "2027": 2928192349.36,
+            "2028": 93952976.18,
+            "2029": 44328368.0,
+            "2030": 20389734.86,
+            "2031": 18731058.75,
+            "2032": 18731059.1,
+            "2033": 18731059.08,
+            "mayores_2034": 18731058.05
+        },
+        "total_consolidado_bs": 5114029048.38
+    },
+    {
+        "departamento": "SANTA CRUZ",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 1183469495.08,
+        "proyecciones": {
+            "2027": 240102250.73,
+            "2028": 2881085.0,
+            "2029": 0.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 1426452830.81
+    },
+    {
+        "departamento": "LA PAZ",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 3560831653.08,
+        "proyecciones": {
+            "2027": 1597441765.43,
+            "2028": 1483456000.71,
+            "2029": 211864672.63,
+            "2030": 210363401.27,
+            "2031": 12039249.51,
+            "2032": 12039249.76,
+            "2033": 12039249.77,
+            "mayores_2034": 12039249.11
+        },
+        "total_consolidado_bs": 7112114491.26
+    },
+    {
+        "departamento": "LA PAZ",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 1685825928.89,
+        "proyecciones": {
+            "2027": 326947404.76,
+            "2028": 1523064.48,
+            "2029": 0.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 2014296398.13
+    },
+    {
+        "departamento": "COCHABAMBA",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 2212315606.1,
+        "proyecciones": {
+            "2027": 2852617296.14,
+            "2028": 1666552615.02,
+            "2029": 21364393.06,
+            "2030": 21437856.78,
+            "2031": 19816940.66,
+            "2032": 19816941.06,
+            "2033": 19816941.05,
+            "mayores_2034": 19816939.97
+        },
+        "total_consolidado_bs": 6853555529.84
+    },
+    {
+        "departamento": "COCHABAMBA",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 933789625.32,
+        "proyecciones": {
+            "2027": 119233180.84,
+            "2028": 815927.4,
+            "2029": 0.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 1053838733.56
+    },
+    {
+        "departamento": "CHUQUISACA",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 973131463.83,
+        "proyecciones": {
+            "2027": 624392622.37,
+            "2028": 182464743.66,
+            "2029": 189111528.42,
+            "2030": 27591632.42,
+            "2031": 1861360.4,
+            "2032": 1755792.4,
+            "2033": 1755792.4,
+            "mayores_2034": 1755792.29
+        },
+        "total_consolidado_bs": 2003820728.2
+    },
+    {
+        "departamento": "CHUQUISACA",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 409576484.39,
+        "proyecciones": {
+            "2027": 50289579.74,
+            "2028": 1196693.52,
+            "2029": 0.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 461062757.65
+    },
+    {
+        "departamento": "POTOSI",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 2090601073.27,
+        "proyecciones": {
+            "2027": 2218561377.43,
+            "2028": 1150111349.51,
+            "2029": 20919674.71,
+            "2030": 243822.71,
+            "2031": 243822.71,
+            "2032": 243822.71,
+            "2033": 10817887.71,
+            "mayores_2034": 243822.7
+        },
+        "total_consolidado_bs": 5491986653.45
+    },
+    {
+        "departamento": "POTOSI",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 488975482.11,
+        "proyecciones": {
+            "2027": 3879751919.09,
+            "2028": 345472186.2,
+            "2029": 344384285.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 5058583872.39
+    },
+    {
+        "departamento": "ORURO",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 685705922.4,
+        "proyecciones": {
+            "2027": 385468008.55,
+            "2028": 49224119.92,
+            "2029": 52804049.92,
+            "2030": 1331640.92,
+            "2031": 1331640.97,
+            "2032": 1331640.97,
+            "2033": 1331640.98,
+            "mayores_2034": 1331640.88
+        },
+        "total_consolidado_bs": 1179860305.51
+    },
+    {
+        "departamento": "ORURO",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 808496668.51,
+        "proyecciones": {
+            "2027": 161281159.79,
+            "2028": 0.0,
+            "2029": 0.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 969777828.29
+    },
+    {
+        "departamento": "TARIJA",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 518639105.62,
+        "proyecciones": {
+            "2027": 371143028.46,
+            "2028": 52750816.24,
+            "2029": 40402603.38,
+            "2030": 10912760.08,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 993848313.78
+    },
+    {
+        "departamento": "TARIJA",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 311781989.17,
+        "proyecciones": {
+            "2027": 185853202.21,
+            "2028": 815927.4,
+            "2029": 0.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 498451118.78
+    },
+    {
+        "departamento": "BENI",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 420158866.66,
+        "proyecciones": {
+            "2027": 475778650.77,
+            "2028": 60299269.96,
+            "2029": 20363433.88,
+            "2030": 52769806.96,
+            "2031": 45508656.0,
+            "2032": 45500000.0,
+            "2033": 249417737.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 1369796421.23
+    },
+    {
+        "departamento": "BENI",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 74731499.33,
+        "proyecciones": {
+            "2027": 25504319.48,
+            "2028": 0.0,
+            "2029": 0.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 100235818.81
+    },
+    {
+        "departamento": "PANDO",
+        "origen_recursos": "Internos",
+        "vigente_2026_bs": 512412315.28,
+        "proyecciones": {
+            "2027": 320963608.5,
+            "2028": 16058792.15,
+            "2029": 0.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 849434715.93
+    },
+    {
+        "departamento": "PANDO",
+        "origen_recursos": "Externos",
+        "vigente_2026_bs": 258973932.14,
+        "proyecciones": {
+            "2027": 58881293.37,
+            "2028": 0.0,
+            "2029": 0.0,
+            "2030": 0.0,
+            "2031": 0.0,
+            "2032": 0.0,
+            "2033": 0.0,
+            "mayores_2034": 0.0
+        },
+        "total_consolidado_bs": 317855225.51
+    }
+]

@@ -3,7 +3,7 @@ import { boliviaViewBox, boliviaPaths, boliviaLabelPositions } from '../utils/bo
 import { getDeptoDistribution } from '../utils/dataProcessing';
 import { DPTO_DISPLAY_NAMES } from '../utils/formatters';
 
-const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
+const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData, activeDashboard }) => {
   const [hoveredDepto, setHoveredDepto] = useState(null);
 
   const distribution = useMemo(() =>
@@ -126,7 +126,10 @@ const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
                   fontWeight="600"
                   className="pointer-events-none"
                 >
-                  {data.count} contratos · USD {(data.total / 1_000_000).toFixed(0)}M
+                  {activeDashboard === 'financiamiento-externo' 
+                    ? `${data.count} contratos · USD ${(data.total / 1_000_000).toFixed(0)}M`
+                    : `${data.count} registros · Bs. ${(data.total / 1_000_000).toFixed(0)}M`
+                  }
                 </text>
                 <text
                   x={pos.x}
@@ -147,16 +150,16 @@ const BoliviaMap = ({ selectedDepto, onDeptoSelect, deptoData }) => {
 
       <div className="flex items-center justify-center gap-3 mt-2 text-xs" style={{ color: 'var(--text)', opacity: 0.7 }}>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-1)' }}></span> &lt;$50M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-1)' }}></span> {activeDashboard === 'financiamiento-externo' ? '<$50M' : '<50M Bs.'}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-2)' }}></span> $50-100M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-2)' }}></span> {activeDashboard === 'financiamiento-externo' ? '$50-100M' : '50-100M Bs.'}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-3)' }}></span> $100-500M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-3)' }}></span> {activeDashboard === 'financiamiento-externo' ? '$100-500M' : '100-500M Bs.'}
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-5)' }}></span> &gt;$500M
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'var(--map-fill-5)' }}></span> {activeDashboard === 'financiamiento-externo' ? '>$500M' : '>500M Bs.'}
         </span>
         <span className="flex items-center gap-1">
           <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: contrastColor }}></span> Selección

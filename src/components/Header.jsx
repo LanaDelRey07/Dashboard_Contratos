@@ -1,7 +1,7 @@
 import { Search, Moon, Sun, RefreshCw } from 'lucide-react';
 import logoImg from '/Presidencia.png';
 
-const Header = ({ searchTerm, onSearchChange, darkMode, onToggleDark }) => {
+const Header = ({ searchTerm, onSearchChange, darkMode, onToggleDark, activeDashboard }) => {
   return (
     <header
       className="sticky top-0 z-50 border-b no-print"
@@ -20,31 +20,35 @@ const Header = ({ searchTerm, onSearchChange, darkMode, onToggleDark }) => {
             />
             <div className="min-w-0">
               <h1 className="text-base font-bold leading-tight truncate" style={{ color: 'var(--text)' }}>
-                Tablero Gerencial - Financiamiento Externo en Ejecución
+                {activeDashboard === 'financiamiento-externo' && 'Tablero de Financiamiento Externo'}
+                {activeDashboard === 'inversion-publica' && 'Tablero de Inversión Pública'}
+                {activeDashboard === 'inversion-plurianual' && 'Inversión Pública Plurianual'}
               </h1>
               <p className="text-xs leading-tight truncate" style={{ color: 'var(--gold)' }}>
-                Ministerio de Planificación del Desarrollo y Medio Ambiente
+                Ministerio de Planificación del Desarrollo
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar contrato o SISFIN..."
-                value={searchTerm}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="w-40 sm:w-64 pl-9 pr-4 py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 transition-all"
-                style={{
-                  backgroundColor: 'var(--gray)',
-                  borderColor: 'var(--nav-border)',
-                  color: 'var(--text)',
-                  '--tw-ring-color': 'var(--gold)',
-                }}
-              />
-            </div>
+            {activeDashboard === 'financiamiento-externo' && (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar contrato o SISFIN..."
+                  value={searchTerm}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  className="w-40 sm:w-64 pl-9 pr-4 py-2 text-sm rounded-lg border focus:outline-none focus:ring-2 transition-all"
+                  style={{
+                    backgroundColor: 'var(--gray)',
+                    borderColor: 'var(--nav-border)',
+                    color: 'var(--text)',
+                    '--tw-ring-color': 'var(--gold)',
+                  }}
+                />
+              </div>
+            )}
             <button
               onClick={() => window.location.reload()}
               className="p-2 rounded-lg transition-colors hover:opacity-80"
