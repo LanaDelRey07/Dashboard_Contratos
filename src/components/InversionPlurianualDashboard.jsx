@@ -31,11 +31,18 @@ const InversionPlurianualDashboard = ({ selectedDepto }) => {
     const years = ['2026', '2027', '2028', '2029', '2030', '2031', '2032', '2033', 'mayores_2034'];
     const maxVal = Math.max(...years.map(yr => summary.projectionsSum[yr] || 0), 1);
     
-    return years.map(yr => ({
-      year: yr === 'mayores_2034' ? '2034+' : yr,
-      amount: summary.projectionsSum[yr] || 0,
-      heightPercentage: ((summary.projectionsSum[yr] || 0) / maxVal) * 100
-    }));
+    return years.map(yr => {
+      const amount = summary.projectionsSum[yr] || 0;
+      // Using power scale (0.45) to make smaller amounts visibly distinct
+      const ratio = amount / maxVal;
+      const heightPercentage = Math.pow(ratio, 0.45) * 100;
+      
+      return {
+        year: yr === 'mayores_2034' ? '2034+' : yr,
+        amount,
+        heightPercentage
+      };
+    });
   }, [summary]);
 
   return (
@@ -113,31 +120,35 @@ const InversionPlurianualDashboard = ({ selectedDepto }) => {
             Cronograma de Proyecciones de Inversión Pública (Bs. Millones)
           </h3>
           
-          <div className="h-64 flex items-end justify-between gap-2 pt-4 px-2">
+          <div className="h-64 flex items-end justify-between gap-2 pt-6 px-2">
             {chartData.map((d, idx) => (
               <div key={idx} className="flex-1 flex flex-col items-center group h-full justify-end">
                 {/* Tooltip on hover */}
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 text-white text-[9px] px-2 py-1 rounded absolute mb-20 pointer-events-none transform -translate-y-8 z-10 whitespace-nowrap shadow-lg">
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/85 text-white text-[9px] px-2 py-1 rounded absolute mb-24 pointer-events-none transform -translate-y-8 z-10 whitespace-nowrap shadow-lg">
                   {fmtBs(d.amount)}
                 </div>
+                
+                {/* Amount Label (On Top of Bar) */}
+                {d.amount > 0 ? (
+                  <span className="text-[8px] sm:text-[9px] font-bold mb-1 font-mono whitespace-nowrap tracking-tighter" style={{ color: 'var(--text)' }}>
+                    Bs. {(d.amount / 1_000_000).toLocaleString('es-BO', { minimumFractionDigits: 1, maximumFractionDigits: 2 })}M
+                  </span>
+                ) : (
+                  <span className="text-[9px] opacity-35 mb-1 font-mono">-</span>
+                )}
                 
                 {/* Bar */}
                 <div 
                   className="w-full rounded-t transition-all duration-500 cursor-pointer hover:opacity-85"
                   style={{
-                    height: `${Math.max(d.heightPercentage, 2)}%`,
+                    height: `${Math.max(d.heightPercentage, d.amount > 0 ? 3.5 : 0.5)}%`,
                     backgroundColor: idx === 0 ? 'var(--gold)' : 'var(--gold-light)',
                     minHeight: d.amount > 0 ? '4px' : '1px'
                   }}
                 />
                 
-                {/* Amount Label */}
-                <span className="text-[9px] opacity-65 mt-2 font-mono">
-                  {d.amount > 0 ? `${(d.amount / 1_000_000).toFixed(0)}M` : '-'}
-                </span>
-                
                 {/* Year Label */}
-                <span className="text-[10px] font-semibold mt-1" style={{ color: 'var(--text)' }}>
+                <span className="text-[10px] font-semibold mt-2 shrink-0" style={{ color: 'var(--text)' }}>
                   {d.year}
                 </span>
               </div>
