@@ -112,6 +112,7 @@ export const filterInversionRegistries = ({ searchTerm = '', selectedDepto = nul
 export const calculateProjectKPIs = (projects) => {
   const count = projects.length;
   let totalPresupuesto = 0;
+  let totalPresupuestoInicial = 0;
   let totalAcumulado = 0;
   let totalEjecucion2026 = 0;
   let sumFisico = 0;
@@ -122,6 +123,7 @@ export const calculateProjectKPIs = (projects) => {
   for (let i = 0; i < count; i++) {
     const p = projects[i];
     totalPresupuesto += p.presupuesto_vigente_2026_bs || 0;
+    totalPresupuestoInicial += p.presupuesto_inicial_2026_bs || 0;
     totalAcumulado += p.ejecucion_acumulada_2025_bs || 0;
     totalEjecucion2026 += p.ejecucion_2026_bs || 0;
 
@@ -141,6 +143,7 @@ export const calculateProjectKPIs = (projects) => {
   return {
     cantidad: count,
     totalPresupuesto,
+    totalPresupuestoInicial,
     totalAcumulado,
     totalEjecucion2026,
     avgAvanceFisico: countFisico > 0 ? sumFisico / countFisico : 0,
@@ -155,11 +158,16 @@ export const calculateRegistryKPIs = (registries) => {
   let totalAvanceMonto = 0;
   let sumPorcentaje = 0;
   let countPorcentaje = 0;
+  let obrasEnEjecucion = 0;
 
   for (let i = 0; i < count; i++) {
     const r = registries[i];
     totalPresupuesto += r.presupuesto_vigente_2026_bs || 0;
     totalAvanceMonto += r.avance_ejecucion_monto_bs || 0;
+
+    if (r.estado_obra === 'En ejecución') {
+      obrasEnEjecucion++;
+    }
 
     const pct = parseFloat(r.avance_ejecucion_porcentaje);
     if (!isNaN(pct)) {
@@ -172,6 +180,7 @@ export const calculateRegistryKPIs = (registries) => {
     cantidad: count,
     totalPresupuesto,
     totalAvanceMonto,
+    obrasEnEjecucion,
     avgAvancePorcentaje: countPorcentaje > 0 ? sumPorcentaje / countPorcentaje : 0
   };
 };

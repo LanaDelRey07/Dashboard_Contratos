@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, ChevronLeft, ChevronRight, BarChart3, MapPin, Building, Eye, X, Activity } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, BarChart3, Building, Eye, X, Activity } from 'lucide-react';
 import { 
   filterInversionProjects, 
   filterInversionRegistries, 
@@ -31,6 +31,115 @@ const getInversionProjectStateClass = (estado) => {
     return 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-455 border border-blue-200 dark:border-blue-800';
   }
   return 'bg-slate-50 dark:bg-slate-900/40 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800';
+};
+
+const DonutChart = ({ data, labelField, valueField, countField, valueType = 'Bs.' }) => {
+  const total = data.reduce((acc, d) => acc + (d[valueField] || 0), 0);
+  const radius = 60;
+  const innerRadius = 38;
+  const cx = 80;
+  const cy = 80;
+
+  const colorsList = [
+    '#d4af37', // Gold
+    '#3b82f6', // Blue
+    '#10b981', // Emerald
+    '#f59e0b', // Amber
+    '#ef4444', // Red
+    '#8b5cf6', // Violet
+    '#ec4899', // Pink
+    '#14b8a6', // Teal
+    '#6366f1'  // Indigo
+  ];
+
+  const slices = [];
+  let angle = -90;
+  for (let i = 0; i < data.length; i++) {
+    const d = data[i];
+    const val = d[valueField] || 0;
+    const sweep = Math.max((val / (total || 1)) * 360, 0.1);
+    const startRad = (angle * Math.PI) / 180;
+    const endRad = ((angle + sweep) * Math.PI) / 180;
+
+    const x1Outer = cx + radius * Math.cos(startRad);
+    const y1Outer = cy + radius * Math.sin(startRad);
+    const x2Outer = cx + radius * Math.cos(endRad);
+    const y2Outer = cy + radius * Math.sin(endRad);
+    const x1Inner = cx + innerRadius * Math.cos(endRad);
+    const y1Inner = cy + innerRadius * Math.sin(endRad);
+    const x2Inner = cx + innerRadius * Math.cos(startRad);
+    const y2Inner = cy + innerRadius * Math.sin(startRad);
+
+    const pathData = [
+      `M ${x1Outer} ${y1Outer}`,
+      `A ${radius} ${radius} 0 ${sweep > 180 ? 1 : 0} 1 ${x2Outer} ${y2Outer}`,
+      `L ${x1Inner} ${y1Inner}`,
+      `A ${innerRadius} ${innerRadius} 0 ${sweep > 180 ? 1 : 0} 0 ${x2Inner} ${y2Inner}`,
+      'Z',
+    ].join(' ');
+
+    slices.push({
+      label: d[labelField] || 'Otros',
+      pathData,
+      color: colorsList[i % colorsList.length],
+      value: val,
+      count: d[countField] || 0
+    });
+    angle += sweep;
+  }
+
+  const formatLegendValue = (val) => {
+    if (valueType === 'Bs.') {
+      return `Bs. ${(val / 1_000_000).toFixed(1)}M`;
+    }
+    return `${val.toLocaleString()} items`;
+  };
+
+  return (
+    <div className="flex flex-col sm:flex-row items-center gap-6 justify-center py-2">
+      {total > 0 ? (
+        <div className="flex flex-col items-center">
+          <svg viewBox="0 0 160 160" className="w-36 h-36 shrink-0">
+            {slices.map((s, i) => (
+              <path
+                key={i}
+                d={s.pathData}
+                fill={s.color}
+                opacity={0.85}
+                className="hover:opacity-100 transition-opacity cursor-pointer"
+              >
+                <title>{s.label}: {formatLegendValue(s.value)} ({s.count} registros)</title>
+              </path>
+            ))}
+            <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" className="text-[10px] font-bold" style={{ fill: 'var(--text)' }}>
+              {valueType === 'Bs.' ? 'Bs.' : 'Items'}
+            </text>
+          </svg>
+        </div>
+      ) : (
+        <div className="w-36 h-36 shrink-0 flex items-center justify-center border border-dashed border-[var(--nav-border)] rounded-full">
+          <span className="text-[10px] opacity-40">Sin datos</span>
+        </div>
+      )}
+
+      <div className="flex-1 space-y-1.5 text-[10px] w-full max-h-36 overflow-y-auto pr-1 scrollbar-thin">
+        {slices.slice(0, 6).map((s, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+            <span className="truncate max-w-[140px] font-semibold" style={{ color: 'var(--text)' }} title={s.label}>
+              {s.label}
+            </span>
+            <span className="ml-auto opacity-70 whitespace-nowrap font-mono">
+              {formatLegendValue(s.value)}
+            </span>
+          </div>
+        ))}
+        {slices.length > 6 && (
+          <div className="text-[9px] opacity-50 italic pl-4">+{slices.length - 6} más</div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) => {
@@ -117,10 +226,23 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
   // Top municipalities for registries
   const topMunis = useMemo(() => {
     if (activeSubTab === 'registries') {
-      return getTopMunicipalities(filteredData, selectedDepto).slice(0, 5);
+      return getTopMunicipalities(filteredData, selectedDepto);
     }
     return [];
   }, [activeSubTab, filteredData, selectedDepto]);
+
+  // Project states distribution for donut chart
+  const projectStatesDist = useMemo(() => {
+    if (activeSubTab !== 'projects') return [];
+    const states = {};
+    filteredData.forEach(p => {
+      const est = p.estado || 'Sin Registro';
+      states[est] = (states[est] || 0) + 1;
+    });
+    return Object.entries(states)
+      .map(([name, count]) => ({ name, count, total: count }))
+      .sort((a, b) => b.count - a.count);
+  }, [activeSubTab, filteredData]);
 
   // Total pages
   const totalPages = Math.max(Math.ceil(filteredData.length / ITEMS_PER_PAGE), 1);
@@ -179,18 +301,28 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {activeSubTab === 'projects' ? (
           <>
             <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
               <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Proyectos Totales</span>
               <h3 className="text-2xl font-bold mt-1" style={{ color: 'var(--gold)' }}>{kpis.cantidad.toLocaleString()}</h3>
-              <p className="text-[10px] opacity-40 mt-1">En el departamento/filtros</p>
+              <p className="text-[10px] opacity-40 mt-1">En filtros activos</p>
             </div>
             <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
               <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Presupuesto Vigente 2026</span>
-              <h3 className="text-xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">{fmtBs(kpis.totalPresupuesto)}</h3>
+              <h3 className="text-sm font-bold mt-1.5 text-emerald-600 dark:text-emerald-400">{fmtBs(kpis.totalPresupuesto)}</h3>
               <p className="text-[10px] opacity-40 mt-1">Acumulado 2025: {fmtBs(kpis.totalAcumulado)}</p>
+            </div>
+            <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
+              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Presupuesto Inicial 2026</span>
+              <h3 className="text-sm font-bold mt-1.5 text-blue-600 dark:text-blue-400">{fmtBs(kpis.totalPresupuestoInicial)}</h3>
+              <p className="text-[10px] opacity-40 mt-1">Aprobado inicialmente</p>
+            </div>
+            <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
+              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Ejecución Gestión 2026</span>
+              <h3 className="text-sm font-bold mt-1.5 text-amber-600 dark:text-amber-400">{fmtBs(kpis.totalEjecucion2026)}</h3>
+              <p className="text-[10px] opacity-40 mt-1">Devengado esta gestión</p>
             </div>
             <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
               <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Avance Físico Promedio</span>
@@ -212,15 +344,25 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
             <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
               <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Obras / Registros</span>
               <h3 className="text-2xl font-bold mt-1" style={{ color: 'var(--gold)' }}>{kpis.cantidad.toLocaleString()}</h3>
-              <p className="text-[10px] opacity-40 mt-1">Registros con georreferenciación</p>
+              <p className="text-[10px] opacity-40 mt-1">Con georreferenciación</p>
             </div>
             <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
               <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Presupuesto Vigente 2026</span>
-              <h3 className="text-xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">{fmtBs(kpis.totalPresupuesto)}</h3>
-              <p className="text-[10px] opacity-40 mt-1">Avance Ejecución: {fmtBs(kpis.totalAvanceMonto)}</p>
+              <h3 className="text-sm font-bold mt-1.5 text-emerald-600 dark:text-emerald-400">{fmtBs(kpis.totalPresupuesto)}</h3>
+              <p className="text-[10px] opacity-40 mt-1">Programado general</p>
             </div>
-            <div className="rounded-xl p-4 border col-span-1 sm:col-span-2 animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
-              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Avance de Ejecución Promedio (%)</span>
+            <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
+              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Avance Ejecución Monto</span>
+              <h3 className="text-sm font-bold mt-1.5 text-blue-600 dark:text-blue-400">{fmtBs(kpis.totalAvanceMonto)}</h3>
+              <p className="text-[10px] opacity-40 mt-1">Inversión acumulada</p>
+            </div>
+            <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
+              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Obras En Ejecución</span>
+              <h3 className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">{kpis.obrasEnEjecucion.toLocaleString()}</h3>
+              <p className="text-[10px] opacity-40 mt-1">Estado: En ejecución</p>
+            </div>
+            <div className="rounded-xl p-4 border col-span-1 sm:col-span-2 lg:col-span-2 animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
+              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Avance de Ejecución Promedio</span>
               <div className="flex items-center gap-4 mt-1">
                 <h3 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>{fmtPercent(kpis.avgAvancePorcentaje)}</h3>
                 <div className="flex-1 h-2 rounded-full" style={{ backgroundColor: 'var(--gray)' }}>
@@ -234,94 +376,46 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
 
       {/* Grid of Charts and Municipalities */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Sector Distribution */}
-        <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
+        {/* Sector Distribution (Torta) */}
+        <div className="rounded-xl p-5 border" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
           <h3 className="text-xs font-bold uppercase tracking-wider mb-4" style={{ color: 'var(--gold)' }}>
-            Distribución por Sector
+            Distribución Presupuestaria por Sector
           </h3>
-          <div className="space-y-3">
-            {sectorDist.slice(0, 5).map((s, idx) => {
-              const maxVal = sectorDist[0]?.total || 1;
-              const pct = ((s.total / maxVal) * 100).toFixed(0);
-              return (
-                <div key={idx}>
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="font-semibold truncate max-w-[200px]">{s.sector}</span>
-                    <span className="opacity-60">{s.count} {s.count === 1 ? 'ítem' : 'ítems'} · {(s.total / 1_000_000).toFixed(1)}M Bs.</span>
-                  </div>
-                  <div className="w-full h-2 rounded-full" style={{ backgroundColor: 'var(--gray)' }}>
-                    <div className="h-2 rounded-full" style={{ width: `${pct}%`, backgroundColor: 'var(--gold)' }}></div>
-                  </div>
-                </div>
-              );
-            })}
-            {sectorDist.length === 0 && (
-              <p className="text-xs opacity-50 text-center py-6">Sin datos sectoriales en este filtro</p>
-            )}
-          </div>
+          <DonutChart 
+            data={sectorDist} 
+            labelField={activeSubTab === 'projects' ? 'sector' : 'sector'} 
+            valueField="total" 
+            countField="count" 
+            valueType="Bs."
+          />
         </div>
 
-        {/* Municipality Ranking (Registries only) or Sector / Admin distribution (Projects only) */}
+        {/* Municipality Ranking (Torta) or Project States (Torta) */}
         {activeSubTab === 'registries' ? (
-          <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
+          <div className="rounded-xl p-5 border" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
             <h3 className="text-xs font-bold uppercase tracking-wider mb-4" style={{ color: 'var(--gold)' }}>
-              Inversión por Municipio (Top 5 en {selectedDepto || 'Nacional'})
+              Distribución por Municipio (Top en {selectedDepto || 'Nacional'})
             </h3>
-            <div className="space-y-3">
-              {topMunis.map((m, idx) => {
-                const maxVal = topMunis[0]?.total || 1;
-                const pct = ((m.total / maxVal) * 100).toFixed(0);
-                return (
-                  <div key={idx}>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="font-semibold flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 opacity-50" />
-                        {m.municipio}
-                      </span>
-                      <span className="opacity-60">{m.count} obras · {(m.total / 1_000_000).toFixed(2)}M Bs.</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full" style={{ backgroundColor: 'var(--gray)' }}>
-                      <div className="h-2 rounded-full bg-blue-500" style={{ width: `${pct}%` }}></div>
-                    </div>
-                  </div>
-                );
-              })}
-              {topMunis.length === 0 && (
-                <p className="text-xs opacity-50 text-center py-6">Seleccione un departamento con obras registradas para ver la distribución municipal</p>
-              )}
-            </div>
+            <DonutChart 
+              data={topMunis} 
+              labelField="municipio" 
+              valueField="total" 
+              countField="count" 
+              valueType="Bs."
+            />
           </div>
         ) : (
-          <div className="rounded-xl p-4 border" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
+          <div className="rounded-xl p-5 border" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
             <h3 className="text-xs font-bold uppercase tracking-wider mb-4" style={{ color: 'var(--gold)' }}>
-              Top Estados de Proyectos
+              Distribución por Estado de Proyecto
             </h3>
-            <div className="space-y-3">
-              {(() => {
-                const states = {};
-                filteredData.forEach(p => {
-                  const est = p.estado || 'Otros';
-                  states[est] = (states[est] || 0) + 1;
-                });
-                const sorted = Object.entries(states)
-                  .map(([name, count]) => ({ name, count }))
-                  .sort((a, b) => b.count - a.count)
-                  .slice(0, 5);
-
-                const maxCount = sorted[0]?.count || 1;
-                return sorted.map((st, idx) => (
-                  <div key={idx}>
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="font-semibold truncate max-w-[200px]">{st.name}</span>
-                      <span className="opacity-60">{st.count} proyectos</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full" style={{ backgroundColor: 'var(--gray)' }}>
-                      <div className="h-2 rounded-full bg-amber-500" style={{ width: `${(st.count / maxCount) * 100}%` }}></div>
-                    </div>
-                  </div>
-                ));
-              })()}
-            </div>
+            <DonutChart 
+              data={projectStatesDist} 
+              labelField="name" 
+              valueField="count" 
+              countField="count" 
+              valueType="count"
+            />
           </div>
         )}
       </div>

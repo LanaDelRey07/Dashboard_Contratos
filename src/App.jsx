@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Download, AlertTriangle, Menu } from 'lucide-react';
+import { Download, Menu } from 'lucide-react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import KPICards from './components/KPICards';
@@ -15,7 +15,6 @@ import {
   calculateKPIs, 
   getSectorDistribution, 
   getEstadoDistribution, 
-  getProjectsWithAlerts, 
   allProjects,
   getDeptoDistribution
 } from './utils/dataProcessing';
@@ -82,10 +81,6 @@ function App() {
   const estadoDist = useMemo(() => {
     try { return getEstadoDistribution(filteredProjects); } catch { return []; }
   }, [filteredProjects]);
-  const alertProjects = useMemo(() => {
-    try { return getProjectsWithAlerts(filteredProjects); } catch { return []; }
-  }, [filteredProjects]);
-
   const handleExportResumen = () => {
     const deptoName = selectedDepto ? DPTO_DISPLAY_NAMES[selectedDepto] || selectedDepto : 'Nacional';
     exportResumenPDF(deptoName, filteredProjects, kpisForTotals);
@@ -268,35 +263,7 @@ function App() {
                     <GeneralReadout kpis={kpisForTotals} />
                   </div>
 
-                  {alertProjects.length > 0 && (
-                    <div
-                      className="rounded-xl p-4 mb-6 border-l-4 border-amber-500"
-                      style={{ backgroundColor: 'rgba(234, 88, 12, 0.06)' }}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <AlertTriangle className="w-4 h-4 text-amber-500" />
-                        <h3 className="text-sm font-semibold text-amber-600">
-                          Contratos que requieren atención ({alertProjects.length})
-                        </h3>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {alertProjects.slice(0, 5).map(p => (
-                          <button
-                            key={p._id}
-                            onClick={() => setSelectedProject(p)}
-                            className="text-xs px-3 py-1.5 rounded-full transition-colors hover:opacity-80 border border-amber-300 bg-amber-50 text-amber-800"
-                          >
-                            {p['Nombre del Proyecto'].substring(0, 50)}...
-                          </button>
-                        ))}
-                        {alertProjects.length > 5 && (
-                          <span className="text-xs px-3 py-1.5 text-amber-600">
-                            +{alertProjects.length - 5} más
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  )}
+
 
                   <div
                     className="rounded-xl p-4 mb-4 border"

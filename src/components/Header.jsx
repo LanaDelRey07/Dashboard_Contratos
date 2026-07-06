@@ -25,7 +25,7 @@ const Header = ({ searchTerm, onSearchChange, darkMode, onToggleDark, activeDash
                 {activeDashboard === 'inversion-plurianual' && 'Inversión Pública Plurianual'}
               </h1>
               <p className="text-xs leading-tight truncate" style={{ color: 'var(--gold)' }}>
-                Ministerio de Planificación del Desarrollo
+                Ministerio de Planificación del Desarrollo y Medio Ambiente
               </p>
             </div>
           </div>
