@@ -26,7 +26,7 @@ const addHeader = (doc, title) => {
   return 46;
 };
 
-const addFooter = (doc) => {
+const addFooter = (doc, dashboardLabel = 'Tablero Gerencial - Financiamiento Externo') => {
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -36,7 +36,7 @@ const addFooter = (doc) => {
     doc.setTextColor(120, 120, 120);
     doc.setFont('helvetica', 'normal');
     doc.text(`Página ${i} de ${pageCount}`, 190, 293, { align: 'right' });
-    doc.text('Tablero Gerencial - Financiamiento Externo | Documento de uso interno', MARGIN, 293);
+    doc.text(`${dashboardLabel} | Documento de uso interno`, MARGIN, 293);
   }
 };
 
@@ -200,7 +200,7 @@ export const exportResumenPDF = (depto, projects, kpis) => {
       },
     });
 
-    addFooter(doc);
+    addFooter(doc, 'Tablero Gerencial - Financiamiento Externo');
     const fileName = depto ? `Resumen_${depto.replace(/\s/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf` : `Resumen_Nacional_${new Date().toISOString().slice(0, 10)}.pdf`;
     doc.save(fileName);
   } catch (error) {
@@ -439,11 +439,276 @@ export const exportFichaPDF = (project) => {
       y = doc.lastAutoTable.finalY + 8;
     }
 
-    addFooter(doc);
+    addFooter(doc, 'Tablero Gerencial - Ficha de Contrato');
     const fileName = `Ficha_${nombreContrato.substring(0, 40).replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
     doc.save(fileName);
   } catch (error) {
     console.error('Error generando PDF ficha:', error);
+    alert('Error al generar el PDF. Por favor, intente nuevamente.');
+  }
+};
+
+const fmtBs = (val) => {
+  if (val === null || val === undefined || val === '') return 'Bs. 0';
+  const num = typeof val === 'string' ? parseFloat(val.replace(',', '.')) : val;
+  if (isNaN(num)) return 'Bs. 0';
+  return `Bs. ${num.toLocaleString('es-BO', { maximumFractionDigits: 0 })}`;
+};
+
+export const exportInversionPublicaPDF = (depto, items, kpis, type) => {
+  try {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const isProjects = type === 'projects';
+    const title = isProjects ? 'Proyectos de Inversión Pública' : 'Registros de Inversión Pública';
+    let y = addHeader(doc, `${title} - ${depto || 'Nacional'}`);
+
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generado: ${new Date().toLocaleDateString('es-BO', { year: 'numeric', month: 'long', day: 'numeric' })}`, MARGIN, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('Indicadores Clave', MARGIN, y);
+    y += 4;
+
+    const bodyKPIs = isProjects ? [
+      ['Proyectos Totales', String(kpis.cantidad)],
+      ['Presupuesto Vigente 2026', fmtBs(kpis.totalPresupuesto)],
+      ['Presupuesto Inicial 2026', fmtBs(kpis.totalPresupuestoInicial)],
+      ['Ejecución Gestión 2026', fmtBs(kpis.totalEjecucion2026)],
+      ['Avance Físico Promedio', fmtPct(kpis.avgAvanceFisico / 100)],
+      ['Avance Financiero Promedio', fmtPct(kpis.avgAvanceFinanciero / 100)],
+    ] : [
+      ['Registros Totales', String(kpis.cantidad)],
+      ['Presupuesto Vigente 2026', fmtBs(kpis.totalPresupuesto)],
+      ['Avance Ejecución Monto', fmtBs(kpis.totalAvanceMonto)],
+      ['Registros En Ejecución', String(kpis.obrasEnEjecucion)],
+      ['Avance de Ejecución Promedio (%)', fmtPct(kpis.avgAvancePorcentaje / 100)],
+    ];
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: MARGIN, right: MARGIN },
+      head: [['Indicador', 'Valor']],
+      body: bodyKPIs,
+      theme: 'grid',
+      headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 80 }, 1: { cellWidth: 80 } },
+    });
+    y = doc.lastAutoTable.finalY + 10;
+
+    // Table of detailed items
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text(isProjects ? 'Lista de Proyectos' : 'Lista de Registros', MARGIN, y);
+    y += 4;
+
+    const rows = isProjects ? items.map(p => [
+      fmt(p.sisin),
+      fmt(p.nombre_proyecto).substring(0, 50),
+      fmt(p.sector_economico).substring(0, 25),
+      fmtBs(p.presupuesto_vigente_2026_bs),
+      fmtPct(p.avance_fisico),
+      fmtPct(p.avance_financiero),
+      fmt(p.estado)
+    ]) : items.map(r => [
+      fmt(r.sisin),
+      fmt(r.nombre_obra).substring(0, 50),
+      fmt(r.municipio),
+      fmt(r.ejecutor_institucion).substring(0, 25),
+      fmtBs(r.presupuesto_vigente_2026_bs),
+      fmtBs(r.avance_ejecucion_monto_bs),
+      fmtPct(r.avance_ejecucion_porcentaje)
+    ]);
+
+    const headers = isProjects 
+      ? [['SISIN', 'Proyecto', 'Sector', 'Vigente 2026', 'Av. Fís.', 'Av. Fin.', 'Estado']]
+      : [['SISIN', 'Registro', 'Municipio', 'Ejecutor', 'Vigente 2026', 'Av. Monto', 'Av. %']];
+
+    const colStyles = isProjects ? {
+      0: { cellWidth: 18 },
+      1: { cellWidth: 45 },
+      2: { cellWidth: 25 },
+      3: { cellWidth: 28, halign: 'right' },
+      4: { cellWidth: 16, halign: 'center' },
+      5: { cellWidth: 16, halign: 'center' },
+      6: { cellWidth: 22, halign: 'center' }
+    } : {
+      0: { cellWidth: 18 },
+      1: { cellWidth: 45 },
+      2: { cellWidth: 22 },
+      3: { cellWidth: 25 },
+      4: { cellWidth: 25, halign: 'right' },
+      5: { cellWidth: 25, halign: 'right' },
+      6: { cellWidth: 10, halign: 'center' }
+    };
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: MARGIN, right: MARGIN },
+      head: headers,
+      body: rows,
+      theme: 'striped',
+      headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontSize: 8 },
+      bodyStyles: { fontSize: 7 },
+      columnStyles: colStyles
+    });
+
+    addFooter(doc, 'Tablero de Inversión Pública');
+    const fileName = `Resumen_Inversion_Publica_${type}_${depto || 'Nacional'}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(fileName);
+  } catch (error) {
+    console.error('Error generando PDF de inversión pública:', error);
+    alert('Error al generar el PDF. Por favor, intente nuevamente.');
+  }
+};
+
+export const exportInversionPlurianualPDF = (depto, data, summary) => {
+  try {
+    const doc = new jsPDF('p', 'mm', 'a4');
+    let y = addHeader(doc, `Inversión Pública Plurianual - ${depto || 'Nacional'}`);
+
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generado: ${new Date().toLocaleDateString('es-BO', { year: 'numeric', month: 'long', day: 'numeric' })}`, MARGIN, y);
+    y += 8;
+
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('Indicadores Clave Plurianuales', MARGIN, y);
+    y += 4;
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: MARGIN, right: MARGIN },
+      head: [['Indicador', 'Valor']],
+      body: [
+        ['Presupuesto Vigente 2026', fmtBs(summary.total2026)],
+        ['Total Consolidado Plurianual', fmtBs(summary.totalConsolidado)],
+        ['Proyección Promedio Anual (9 períodos)', fmtBs(summary.totalConsolidado / 9)],
+      ],
+      theme: 'grid',
+      headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 80 }, 1: { cellWidth: 80 } },
+    });
+    y = doc.lastAutoTable.finalY + 10;
+
+    // Cronograma Table
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('Cronograma de Proyecciones de Inversión Pública', MARGIN, y);
+    y += 4;
+
+    const years = ['2026', '2027', '2028', '2029', '2030', '2031', '2032', '2033', 'mayores_2034'];
+    const cronogramaRows = years.map(yr => [
+      yr === 'mayores_2034' ? '2034+' : yr,
+      fmtBs(summary.projectionsSum[yr] || 0)
+    ]);
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: MARGIN, right: MARGIN },
+      head: [['Año', 'Proyección (Bs.)']],
+      body: cronogramaRows,
+      theme: 'grid',
+      headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
+    });
+    y = doc.lastAutoTable.finalY + 10;
+
+    if (y > 230) { doc.addPage(); y = 20; }
+
+    // Origen de Recursos Table
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('Origen de los Recursos Plurianuales', MARGIN, y);
+    y += 4;
+
+    const sourceRows = Object.entries(summary.bySource).map(([source, sdata]) => {
+      const total = summary.totalConsolidado || 1;
+      const pct = ((sdata.total / total) * 100).toFixed(1) + '%';
+      return [
+        source,
+        pct,
+        fmtBs(sdata.total),
+        fmtBs(sdata['2026'])
+      ];
+    });
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: MARGIN, right: MARGIN },
+      head: [['Origen', 'Participación %', 'Total Consolidado', 'Vigente 2026']],
+      body: sourceRows,
+      theme: 'grid',
+      headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontSize: 9 },
+      bodyStyles: { fontSize: 9 },
+    });
+    y = doc.lastAutoTable.finalY + 10;
+
+    if (y > 230) { doc.addPage(); y = 20; }
+
+    // Detail table
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 58, 95);
+    doc.text('Detalle Plurianual Consolidado', MARGIN, y);
+    y += 4;
+
+    const detailRows = data.map(p => {
+      const sum2030Plus = (p.proyecciones?.['2030'] || 0) + 
+                          (p.proyecciones?.['2031'] || 0) + 
+                          (p.proyecciones?.['2032'] || 0) + 
+                          (p.proyecciones?.['2033'] || 0) + 
+                          (p.proyecciones?.['mayores_2034'] || 0);
+      return [
+        fmt(p.departamento),
+        fmt(p.origen_recursos),
+        fmtBs(p.vigente_2026_bs),
+        fmtBs(p.proyecciones?.['2027']),
+        fmtBs(p.proyecciones?.['2028']),
+        fmtBs(p.proyecciones?.['2029']),
+        fmtBs(sum2030Plus),
+        fmtBs(p.total_consolidado_bs)
+      ];
+    });
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: MARGIN, right: MARGIN },
+      head: [['Departamento', 'Origen', 'Vigente 2026', '2027', '2028', '2029', '2030+', 'Total']],
+      body: detailRows,
+      theme: 'striped',
+      headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontSize: 8 },
+      bodyStyles: { fontSize: 7 },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 20, halign: 'right' },
+        3: { cellWidth: 16, halign: 'right' },
+        4: { cellWidth: 16, halign: 'right' },
+        5: { cellWidth: 16, halign: 'right' },
+        6: { cellWidth: 16, halign: 'right' },
+        7: { cellWidth: 26, halign: 'right' }
+      }
+    });
+
+    addFooter(doc, 'Tablero de Inversión Plurianual');
+    const fileName = `Resumen_Inversion_Plurianual_${depto || 'Nacional'}_${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(fileName);
+  } catch (error) {
+    console.error('Error generando PDF de inversión plurianual:', error);
     alert('Error al generar el PDF. Por favor, intente nuevamente.');
   }
 };

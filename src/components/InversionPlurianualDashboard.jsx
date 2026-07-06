@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { calculatePlurianualSummary, getPlurianualDataByDepto } from '../utils/dataProcessingPlurianual';
-import { DollarSign, Landmark, CalendarRange, TrendingUp } from 'lucide-react';
+import { DollarSign, Landmark, CalendarRange, TrendingUp, Download } from 'lucide-react';
+import { exportInversionPlurianualPDF } from '../utils/pdfExport';
+import { DPTO_DISPLAY_NAMES } from '../utils/formatters';
 
 const InversionPlurianualDashboard = ({ selectedDepto }) => {
   // Fetch data based on selected department
@@ -38,6 +40,32 @@ const InversionPlurianualDashboard = ({ selectedDepto }) => {
 
   return (
     <div className="space-y-6">
+      {/* Top Header Row with Title and Export Button */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-4 border-[var(--nav-border)]">
+        <div>
+          <h2 className="text-lg font-bold" style={{ color: 'var(--text)' }}>
+            {selectedDepto
+              ? `Departamento de ${DPTO_DISPLAY_NAMES[selectedDepto] || selectedDepto}`
+              : 'Vista Nacional'}
+          </h2>
+          <p className="text-xs opacity-60">
+            {plurianualData.length.toLocaleString()} registros plurianuales en filtros
+          </p>
+        </div>
+        <button
+          onClick={() => exportInversionPlurianualPDF(
+            selectedDepto ? DPTO_DISPLAY_NAMES[selectedDepto] || selectedDepto : 'Nacional', 
+            plurianualData, 
+            summary
+          )}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-90 shrink-0"
+          style={{ backgroundColor: 'var(--gold)', color: '#fff' }}
+        >
+          <Download className="w-4 h-4" />
+          Exportar Resumen a PDF
+        </button>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="rounded-xl p-4 border flex items-center gap-4 animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>

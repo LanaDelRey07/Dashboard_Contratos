@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Search, ChevronLeft, ChevronRight, BarChart3, Building, Eye, X, Activity } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, BarChart3, Building, Eye, X, Activity, Download } from 'lucide-react';
+import { exportInversionPublicaPDF } from '../utils/pdfExport';
 import { 
   filterInversionProjects, 
   filterInversionRegistries, 
@@ -272,6 +273,35 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
 
   return (
     <div className="space-y-6">
+      {/* Top Header Row with Title and Export Button */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-4 border-[var(--nav-border)]">
+        <div>
+          <h2 className="text-lg font-bold" style={{ color: 'var(--text)' }}>
+            {selectedDepto
+              ? `Departamento de ${DPTO_DISPLAY_NAMES[selectedDepto] || selectedDepto}`
+              : 'Vista Nacional'}
+          </h2>
+          <p className="text-xs opacity-60">
+            {activeSubTab === 'projects'
+              ? `${filteredData.length.toLocaleString()} proyectos en filtros`
+              : `${filteredData.length.toLocaleString()} registros en filtros`}
+          </p>
+        </div>
+        <button
+          onClick={() => exportInversionPublicaPDF(
+            selectedDepto ? DPTO_DISPLAY_NAMES[selectedDepto] || selectedDepto : 'Nacional', 
+            filteredData, 
+            kpis, 
+            activeSubTab
+          )}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors hover:opacity-90 shrink-0"
+          style={{ backgroundColor: 'var(--gold)', color: '#fff' }}
+        >
+          <Download className="w-4 h-4" />
+          Exportar Resumen a PDF
+        </button>
+      </div>
+
       {/* Subtab Navigation */}
       <div className="flex border-b shrink-0 no-print" style={{ borderColor: 'var(--nav-border)' }}>
         <button
@@ -296,7 +326,7 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
           }}
         >
           <Activity className="w-4 h-4" />
-          Registros de Inversión Pública / Obras ({allInversionRegistries.length.toLocaleString()})
+          Registros de Inversión Pública ({allInversionRegistries.length.toLocaleString()})
         </button>
       </div>
 
@@ -342,7 +372,7 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
         ) : (
           <>
             <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
-              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Obras / Registros</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Registros</span>
               <h3 className="text-2xl font-bold mt-1" style={{ color: 'var(--gold)' }}>{kpis.cantidad.toLocaleString()}</h3>
               <p className="text-[10px] opacity-40 mt-1">Con georreferenciación</p>
             </div>
@@ -357,7 +387,7 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
               <p className="text-[10px] opacity-40 mt-1">Inversión acumulada</p>
             </div>
             <div className="rounded-xl p-4 border animate-count-up" style={{ backgroundColor: 'var(--bg)', borderColor: 'var(--nav-border)' }}>
-              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Obras En Ejecución</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Registros En Ejecución</span>
               <h3 className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">{kpis.obrasEnEjecucion.toLocaleString()}</h3>
               <p className="text-[10px] opacity-40 mt-1">Estado: En ejecución</p>
             </div>
@@ -548,7 +578,7 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
               <thead>
                 <tr className="border-b" style={{ borderColor: 'var(--nav-border)', backgroundColor: 'var(--gray)' }}>
                   <th className="p-3 font-semibold">SISIN</th>
-                  <th className="p-3 font-semibold">Obra</th>
+                  <th className="p-3 font-semibold">Registro</th>
                   <th className="p-3 font-semibold">Municipio (Depto.)</th>
                   <th className="p-3 font-semibold text-right">Presupuesto Vigente</th>
                   <th className="p-3 font-semibold text-right">Avance Monto</th>
@@ -633,7 +663,7 @@ const InversionPublicaDashboard = ({ selectedDepto, selectedEstadosIP = [] }) =>
             <div className="p-6 overflow-y-auto space-y-4 text-xs">
               <div className="border-b pb-2 mb-2">
                 <span className="opacity-50 uppercase text-[9px] font-bold">
-                  {selectedItem.type === 'project' ? 'Proyecto de Inversión' : 'Obra / Registro'}
+                  {selectedItem.type === 'project' ? 'Proyecto de Inversión' : 'Registro de Inversión Pública'}
                 </span>
                 <h4 className="text-sm font-bold mt-0.5" style={{ color: 'var(--gold)' }}>
                   {selectedItem.data.nombre_proyecto || selectedItem.data.nombre_obra || 'Sin nombre'}
