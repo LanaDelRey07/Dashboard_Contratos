@@ -15,7 +15,9 @@ export const allPlurianualInversions = rawPlurianual.map((p, idx) => ({
 
 export const getPlurianualDataByDepto = (selectedDepto) => {
   let filtered = allPlurianualInversions;
-  if (selectedDepto && selectedDepto !== 'NACIONAL') {
+  if (selectedDepto === 'NACIONAL') {
+    filtered = filtered.filter(p => p.departamento === 'NACIONAL');
+  } else if (selectedDepto) {
     filtered = filtered.filter(p => p.departamento === selectedDepto);
   }
   return filtered;
