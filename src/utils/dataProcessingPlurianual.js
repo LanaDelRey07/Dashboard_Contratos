@@ -17,9 +17,6 @@ export const getPlurianualDataByDepto = (selectedDepto) => {
   let filtered = allPlurianualInversions;
   if (selectedDepto && selectedDepto !== 'NACIONAL') {
     filtered = filtered.filter(p => p.departamento === selectedDepto);
-  } else {
-    // For national/no depto view, keep only NACIONAL rows
-    filtered = filtered.filter(p => p.departamento === 'NACIONAL');
   }
   return filtered;
 };
